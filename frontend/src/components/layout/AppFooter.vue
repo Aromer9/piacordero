@@ -26,7 +26,7 @@ function scrollTo(id) {
         <div class="footer__social">
           <a href="https://instagram.com/piacordero_pasteleria" target="_blank" rel="noopener noreferrer" class="footer__social-btn" aria-label="Instagram">ig</a>
           <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="footer__social-btn" aria-label="Facebook">fb</a>
-          <a href="https://wa.me/56989646783" target="_blank" rel="noopener noreferrer" class="footer__social-btn" aria-label="WhatsApp">wa</a>
+          <a href="https://wa.me/569989646783" target="_blank" rel="noopener noreferrer" class="footer__social-btn" aria-label="WhatsApp">wa</a>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ function scrollTo(id) {
         <h4 class="footer__col-title">Contacto</h4>
         <ul class="footer__links">
           <li>
-            <a href="https://wa.me/56989646783" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <a href="https://wa.me/569989646783" target="_blank" rel="noopener noreferrer">WhatsApp</a>
           </li>
           <li>
             <a href="mailto:hola@piacordero.cl">Email</a>

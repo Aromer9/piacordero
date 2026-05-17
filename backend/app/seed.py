@@ -157,10 +157,10 @@ SITE_CONTENT = [
     {
         "section": "contact",
         "content": {
-            "phone": "+56 9 1234 5678",
+            "phone": "+56 9 9896 46783",
             "email": "hola@piacordero.cl",
             "instagram": "@piacordero_pasteleria",
-            "whatsapp_number": "56912345678",
+            "whatsapp_number": "569989646783",
             "whatsapp_message": "Hola Pía! Me gustaría encargar un pedido especial 🎂",
             "location": "Santiago, Chile",
         },

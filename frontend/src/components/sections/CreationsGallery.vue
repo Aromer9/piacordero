@@ -125,7 +125,7 @@ function closeDetail() {
 
 function openWhatsApp(productName) {
   const msg = encodeURIComponent(`Hola Pía! Me gustaría pedir: ${productName} 🎂`)
-  window.open(`https://wa.me/56989646783?text=${msg}`, '_blank')
+  window.open(`https://wa.me/569989646783?text=${msg}`, '_blank')
 }
 
 function formatPrice(price) {
