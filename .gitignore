@@ -1,0 +1,31 @@
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+*.egg-info/
+.eggs/
+dist/
+
+# Node (por si hay paquetes en la raíz)
+node_modules/
+
+# Build / artefactos
+frontend/dist/
+*.log
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Subidas locales (no versionar medios subidos por el admin)
+uploads/

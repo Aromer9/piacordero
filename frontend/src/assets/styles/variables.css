@@ -1,0 +1,31 @@
+:root {
+  /* Paleta de colores */
+  --color-bg: #FAF3EC;
+  --color-bg-card: #FFFFFF;
+  --color-bg-dark: #1C1008;
+  --color-rose-light: #F2D7C8;
+  --color-rose-mid: #C4614A;
+  --color-rose-dark: #A84F3B;
+  --color-rose-pale: #EDD9CC;
+  --color-text: #2C1A0E;
+  --color-text-secondary: #8A7A6E;
+  --color-text-dark-bg: #FAF3EC;
+  --color-border: #E8D8CC;
+  --color-white: #FFFFFF;
+
+  /* Tipografía */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Jost', system-ui, sans-serif;
+
+  /* Espaciado */
+  --section-padding: clamp(60px, 10vw, 120px);
+  --container-max: 1280px;
+  --container-padding: clamp(20px, 5vw, 72px);
+
+  /* Transiciones */
+  --transition: 0.35s ease;
+  --transition-slow: 0.6s ease;
+
+  /* Header */
+  --header-height: 68px;
+}

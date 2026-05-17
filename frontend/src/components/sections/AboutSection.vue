@@ -1,0 +1,196 @@
+<script setup>
+defineProps({
+  content: {
+    type: Object,
+    default: () => ({
+      title: 'Hola, soy Pía',
+      paragraphs: [
+        'Creadora de los pasteles que hago con tanto amor. Hace ya varios años estudié Gastronomía y, después de practicar en restaurantes y hacer cursos de muchas cosas diferentes, me di cuenta que lo mío era hacer pasteles, cosas dulces y hacer felices a mi familia y mis amigos.',
+        'En todo este tiempo conocí gente hermosa, profesores que admiro muchísimo y colegas que son talentosísimas.',
+        'Ahora que decidí emprender, estoy feliz de hacer lo que amo y que se vea reflejado en cada detalle que hago para ustedes.',
+      ],
+      signature: 'Pía',
+      since_year: '2015',
+      image_main: '/images/naked-cake-naranja.jpg',
+      image_2: '/images/torta-espiral-top.jpg',
+    }),
+  },
+})
+</script>
+
+<template>
+  <section id="sobre-mi" class="about">
+    <div class="about__inner container">
+
+      <!-- Izquierda: fotos superpuestas -->
+      <div class="about__images fade-in">
+        <div class="about__img-main-wrap">
+          <img :src="content.image_main" :alt="`Foto de ${content.signature}`" class="about__img-main" loading="lazy" />
+        </div>
+        <div class="about__img-secondary-wrap">
+          <img :src="content.image_2" alt="En la cocina" class="about__img-secondary" loading="lazy" />
+          <div class="about__since-badge">
+            <span class="about__since-text">En cocina desde</span>
+            <span class="about__since-year">{{ content.since_year }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Derecha: texto -->
+      <div class="about__content">
+        <p class="eyebrow fade-in">Sobre mí</p>
+        <h2 class="about__title fade-up">
+          Hola, soy <em>Pía</em>
+        </h2>
+        <div class="about__texts">
+          <p
+            v-for="(p, i) in content.paragraphs"
+            :key="i"
+            class="about__text fade-up"
+            :data-delay="i * 80"
+          >{{ p }}</p>
+        </div>
+        <p class="about__signature fade-up" data-delay="280">— {{ content.signature }} 🫶</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.about {
+  padding: var(--section-padding) 0;
+  background: var(--color-bg);
+}
+
+.about__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(48px, 7vw, 100px);
+  align-items: center;
+}
+
+/* Fotos superpuestas */
+.about__images {
+  position: relative;
+  height: 480px;
+}
+
+.about__img-main-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70%;
+  height: 85%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.about__img-main {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about__img-secondary-wrap {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 55%;
+  height: 52%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(28,16,8,0.15);
+}
+
+.about__img-secondary {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about__since-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: var(--color-rose-mid);
+  color: var(--color-white);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.about__since-text {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.about__since-year {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* Contenido de texto */
+.about__content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about__title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  color: var(--color-text);
+  margin-top: 8px;
+}
+
+.about__title em {
+  font-style: italic;
+  color: var(--color-rose-mid);
+}
+
+.about__texts {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.about__text {
+  font-size: 0.92rem;
+  color: var(--color-text-secondary);
+  line-height: 1.85;
+  font-weight: 300;
+}
+
+.about__signature {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--color-rose-mid);
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .about__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .about__images {
+    height: 360px;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .about__images {
+    height: 280px;
+  }
+}
+</style>
