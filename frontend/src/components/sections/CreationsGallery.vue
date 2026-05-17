@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { productImageSrc, isVideo, mediaSrc, PRODUCT_IMAGE_PLACEHOLDER } from '../../constants/images.js'
+import { productImageSrc, isVideo, mediaSrc, STOREFRONT_PRODUCT_FALLBACK } from '../../constants/images.js'
 import { hasTierPrices, tierPricesSummary, tierPriceRowsForDetail } from '../../utils/productPrices.js'
 
 const props = defineProps({
@@ -39,8 +39,30 @@ const filtered = computed(() => {
 
 const featured = computed(() => props.products.filter((p) => p.featured))
 
+/** Imagen estática por categoría si no hay foto del producto o falló /uploads. */
+const CATEGORY_DEFAULT_IMAGE = {
+  tortas: '/images/torta-frambuesas.jpg',
+  tartas: '/images/torta-limon-top.jpg',
+  petit_fours: '/images/pavlova-frambuesas.jpg',
+  temporada: '/images/torta-naranja-top.jpg',
+}
+
+function defaultPhotoForProduct(product) {
+  const cat = product?.category
+  if (cat && CATEGORY_DEFAULT_IMAGE[cat]) return CATEGORY_DEFAULT_IMAGE[cat]
+  return STOREFRONT_PRODUCT_FALLBACK
+}
+
 /** Productos cuya foto principal falló al cargar (Vue no debe reaplicar la URL rota). */
 const failedProductImages = ref(new Set())
+
+const productsMediaSig = computed(() =>
+  props.products.map((p) => `${p._id ?? p.id ?? ''}:${(p.image_url || '').trim()}`).join('|'),
+)
+
+watch(productsMediaSig, (_sig, prev) => {
+  if (prev !== undefined) failedProductImages.value = new Set()
+})
 
 function productMediaId(product) {
   const id = product?._id ?? product?.id
@@ -54,8 +76,10 @@ function productMediaId(product) {
 
 function productCardSrc(product) {
   const pid = productMediaId(product)
-  if (pid && failedProductImages.value.has(pid)) return PRODUCT_IMAGE_PLACEHOLDER
-  return productImageSrc(product?.image_url)
+  if (pid && failedProductImages.value.has(pid)) return defaultPhotoForProduct(product)
+  const raw = (product?.image_url || '').trim()
+  if (!raw) return defaultPhotoForProduct(product)
+  return productImageSrc(raw)
 }
 
 function onProductImgError(product) {
