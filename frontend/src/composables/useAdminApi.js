@@ -3,11 +3,18 @@ import { getToken, clearToken } from './useAuth.js'
 import { API_BASE } from '../config/api.js'
 
 function adminClient() {
-  const token = getToken()
   const client = axios.create({
     baseURL: API_BASE,
     timeout: 15000,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+
+  client.interceptors.request.use((config) => {
+    const token = getToken()
+    if (token) {
+      config.headers = config.headers ?? {}
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
   })
 
   client.interceptors.response.use(
@@ -60,9 +67,8 @@ export function useAdminApi() {
   async function uploadImage(file) {
     const form = new FormData()
     form.append('file', file)
-    const { data } = await adminClient().post('/upload', form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    // No fijar Content-Type: axios añade multipart + boundary y no pisa Authorization.
+    const { data } = await adminClient().post('/upload', form)
     return data
   }
 

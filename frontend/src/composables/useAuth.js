@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ref } from 'vue'
+import { API_BASE } from '../config/api.js'
 
 const TOKEN_KEY = 'pia_admin_token'
 
@@ -21,7 +22,7 @@ export function clearToken() {
 
 export function useAuth() {
   async function login(password) {
-    const { data } = await axios.post('/api/auth/login', { password })
+    const { data } = await axios.post(`${API_BASE}/auth/login`, { password })
     setToken(data.access_token)
     return data
   }
