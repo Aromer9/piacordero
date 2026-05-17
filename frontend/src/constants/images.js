@@ -8,13 +8,45 @@ function backendOrigin() {
   return (import.meta.env.VITE_BACKEND_ORIGIN || '').trim().replace(/\/$/, '')
 }
 
-/** Resuelve `/uploads/...` contra el backend en producción (VITE_BACKEND_ORIGIN). */
+function isUploadsPath(pathname) {
+  if (!pathname || typeof pathname !== "string") return false
+  const p = pathname.toLowerCase()
+  return p === "/uploads" || p.startsWith("/uploads/")
+}
+
+/**
+ * Sirve `/uploads/...` desde el backend de producción (`VITE_BACKEND_ORIGIN`).
+ * También corrige URLs absolutas guardadas en dev (p. ej. `http://localhost:8001/uploads/...`),
+ * que en producción apuntarían a un host inexistente para el visitante.
+ */
 export function mediaSrc(url) {
   const u = typeof url === "string" ? url.trim() : ""
   if (!u) return u
   const o = backendOrigin()
-  if (o && u.startsWith("/uploads")) return `${o}${u}`
+  if (!o) return u
+
+  if (u.startsWith("/uploads")) return `${o}${u}`
+
+  const lower = u.toLowerCase()
+  if (lower.startsWith("uploads/")) return `${o}/${u}`
+
+  if (/^https?:\/\//i.test(u)) {
+    try {
+      const { pathname, search } = new URL(u)
+      if (isUploadsPath(pathname)) return `${o}${pathname}${search}`
+    } catch {
+      /* URL inválida: se devuelve tal cual */
+    }
+  }
+
   return u
+}
+
+/** Si `url` viene vacío del CMS, usa `fallback`; si es `/uploads/...`, antepone el backend. */
+export function resolvePublicOrUpload(url, fallback = "") {
+  const fb = typeof fallback === "string" ? fallback.trim() : ""
+  const u = typeof url === "string" ? url.trim() : ""
+  return mediaSrc(u || fb)
 }
 
 /** Devuelve true si la URL apunta a un archivo de vídeo. */

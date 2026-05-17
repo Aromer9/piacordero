@@ -1,20 +1,35 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { resolvePublicOrUpload } from '../../constants/images.js'
+
+const DEFAULTS = {
+  title: 'Hola, soy Pía',
+  paragraphs: [
+    'Creadora de los pasteles que hago con tanto amor. Hace ya varios años estudié Gastronomía y, después de practicar en restaurantes y hacer cursos de muchas cosas diferentes, me di cuenta que lo mío era hacer pasteles, cosas dulces y hacer felices a mi familia y mis amigos.',
+    'En todo este tiempo conocí gente hermosa, profesores que admiro muchísimo y colegas que son talentosísimas.',
+    'Ahora que decidí emprender, estoy feliz de hacer lo que amo y que se vea reflejado en cada detalle que hago para ustedes.',
+  ],
+  signature: 'Pía',
+  since_year: '2015',
+  image_main: '/images/naked-cake-naranja.jpg',
+  image_2: '/images/torta-espiral-top.jpg',
+}
+
+const props = defineProps({
   content: {
     type: Object,
-    default: () => ({
-      title: 'Hola, soy Pía',
-      paragraphs: [
-        'Creadora de los pasteles que hago con tanto amor. Hace ya varios años estudié Gastronomía y, después de practicar en restaurantes y hacer cursos de muchas cosas diferentes, me di cuenta que lo mío era hacer pasteles, cosas dulces y hacer felices a mi familia y mis amigos.',
-        'En todo este tiempo conocí gente hermosa, profesores que admiro muchísimo y colegas que son talentosísimas.',
-        'Ahora que decidí emprender, estoy feliz de hacer lo que amo y que se vea reflejado en cada detalle que hago para ustedes.',
-      ],
-      signature: 'Pía',
-      since_year: '2015',
-      image_main: '/images/naked-cake-naranja.jpg',
-      image_2: '/images/torta-espiral-top.jpg',
-    }),
+    default: () => ({}),
   },
+})
+
+const display = computed(() => {
+  const c = props.content || {}
+  return {
+    ...DEFAULTS,
+    ...c,
+    image_main: resolvePublicOrUpload(c.image_main, DEFAULTS.image_main),
+    image_2: resolvePublicOrUpload(c.image_2, DEFAULTS.image_2),
+  }
 })
 </script>
 
@@ -25,13 +40,13 @@ defineProps({
       <!-- Izquierda: fotos superpuestas -->
       <div class="about__images fade-in">
         <div class="about__img-main-wrap">
-          <img :src="content.image_main" :alt="`Foto de ${content.signature}`" class="about__img-main" loading="lazy" />
+          <img :src="display.image_main" :alt="`Foto de ${display.signature}`" class="about__img-main" loading="lazy" />
         </div>
         <div class="about__img-secondary-wrap">
-          <img :src="content.image_2" alt="En la cocina" class="about__img-secondary" loading="lazy" />
+          <img :src="display.image_2" alt="En la cocina" class="about__img-secondary" loading="lazy" />
           <div class="about__since-badge">
             <span class="about__since-text">En cocina desde</span>
-            <span class="about__since-year">{{ content.since_year }}</span>
+            <span class="about__since-year">{{ display.since_year }}</span>
           </div>
         </div>
       </div>
@@ -44,13 +59,13 @@ defineProps({
         </h2>
         <div class="about__texts">
           <p
-            v-for="(p, i) in content.paragraphs"
+            v-for="(p, i) in display.paragraphs"
             :key="i"
             class="about__text fade-up"
             :data-delay="i * 80"
           >{{ p }}</p>
         </div>
-        <p class="about__signature fade-up" data-delay="280">— {{ content.signature }} 🫶</p>
+        <p class="about__signature fade-up" data-delay="280">— {{ display.signature }} 🫶</p>
       </div>
     </div>
   </section>

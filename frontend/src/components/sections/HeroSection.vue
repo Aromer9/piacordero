@@ -1,19 +1,35 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { resolvePublicOrUpload } from '../../constants/images.js'
+
+const DEFAULTS = {
+  tagline: 'Pasteles que cuentan una historia',
+  tagline_italic: 'historia',
+  subtitle: 'Tortas artesanales, pasteles y dulces únicos hechos con los mejores ingredientes. Cada creación es diseñada especialmente para ti.',
+  image_main: '/images/torta-frambuesas.jpg',
+  image_2: '/images/torta-frutos-rojos.jpg',
+  image_3: '/images/torta-naranja-top.jpg',
+  featured_label: 'Torta del mes',
+  featured_desc: 'Frambuesa & vainilla',
+  eyebrow: 'Hecho con amor en Chile',
+}
+
+const props = defineProps({
   content: {
     type: Object,
-    default: () => ({
-      tagline: 'Pasteles que cuentan una historia',
-      tagline_italic: 'historia',
-      subtitle: 'Tortas artesanales, pasteles y dulces únicos hechos con los mejores ingredientes. Cada creación es diseñada especialmente para ti.',
-      image_main: '/images/torta-frambuesas.jpg',
-      image_2: '/images/torta-frutos-rojos.jpg',
-      image_3: '/images/torta-naranja-top.jpg',
-      featured_label: 'Torta del mes',
-      featured_desc: 'Frambuesa & vainilla',
-      eyebrow: 'Hecho con amor en Chile',
-    }),
+    default: () => ({}),
   },
+})
+
+const display = computed(() => {
+  const c = props.content || {}
+  return {
+    ...DEFAULTS,
+    ...c,
+    image_main: resolvePublicOrUpload(c.image_main, DEFAULTS.image_main),
+    image_2: resolvePublicOrUpload(c.image_2, DEFAULTS.image_2),
+    image_3: resolvePublicOrUpload(c.image_3, DEFAULTS.image_3),
+  }
 })
 
 function scrollTo(id) {
@@ -33,14 +49,14 @@ function scrollTo(id) {
       <div class="hero__text">
         <p class="hero__eyebrow fade-in">
           <span class="hero__eyebrow-line" aria-hidden="true" />
-          {{ content.eyebrow }}
+          {{ display.eyebrow }}
         </p>
         <h1 class="hero__title fade-up">
           Pasteles que<br />
           cuentan una <em>historia</em>
         </h1>
         <p class="hero__subtitle fade-up" data-delay="120">
-          {{ content.subtitle }}
+          {{ display.subtitle }}
         </p>
         <div class="hero__actions fade-up" data-delay="240">
           <button class="hero__btn-primary" @click="scrollTo('galeria')">
@@ -55,18 +71,18 @@ function scrollTo(id) {
       <!-- Lado derecho: collage de fotos -->
       <div class="hero__gallery fade-in" data-delay="200">
         <div class="hero__gallery-main">
-          <img :src="content.image_main" alt="Torta principal" loading="eager" />
+          <img :src="display.image_main" alt="Torta principal" loading="eager" />
           <div class="hero__badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             <div>
-              <span class="hero__badge-label">{{ content.featured_label }}</span>
-              <span class="hero__badge-desc">{{ content.featured_desc }}</span>
+              <span class="hero__badge-label">{{ display.featured_label }}</span>
+              <span class="hero__badge-desc">{{ display.featured_desc }}</span>
             </div>
           </div>
         </div>
         <div class="hero__gallery-side">
-          <img :src="content.image_2" alt="Creación 2" loading="eager" />
-          <img :src="content.image_3" alt="Creación 3" loading="eager" />
+          <img :src="display.image_2" alt="Creación 2" loading="eager" />
+          <img :src="display.image_3" alt="Creación 3" loading="eager" />
         </div>
       </div>
     </div>
