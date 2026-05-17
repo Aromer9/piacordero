@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { productImageSrc, isVideo, mediaSrc, STOREFRONT_PRODUCT_FALLBACK } from '../../constants/images.js'
+import { productImageSrc, isVideo, mediaSrc } from '../../constants/images.js'
 import { hasTierPrices, tierPricesSummary, tierPriceRowsForDetail } from '../../utils/productPrices.js'
 
 const props = defineProps({
@@ -39,18 +39,30 @@ const filtered = computed(() => {
 
 const featured = computed(() => props.products.filter((p) => p.featured))
 
-/** Imagen estática por categoría si no hay foto del producto o falló /uploads. */
-const CATEGORY_DEFAULT_IMAGE = {
-  tortas: '/images/torta-frambuesas.jpg',
-  tartas: '/images/torta-limon-top.jpg',
-  petit_fours: '/images/pavlova-frambuesas.jpg',
-  temporada: '/images/torta-naranja-top.jpg',
+/** Fotos estáticas de `public/images`: se elige una por producto (hash estable) para no repetir la misma en toda la fila. */
+const FALLBACK_IMAGE_POOL = [
+  '/images/torta-frambuesas.jpg',
+  '/images/torta-frutos-rojos.jpg',
+  '/images/torta-naranja-top.jpg',
+  '/images/torta-limon-top.jpg',
+  '/images/torta-espiral-top.jpg',
+  '/images/naked-cake-naranja.jpg',
+  '/images/pavlova-frambuesas.jpg',
+  '/images/torta-naranja-lavanda.jpg',
+]
+
+function poolIndexForProduct(product) {
+  const s = String(product?._id ?? product?.id ?? product?.name ?? 'x')
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return Math.abs(h) % FALLBACK_IMAGE_POOL.length
 }
 
 function defaultPhotoForProduct(product) {
-  const cat = product?.category
-  if (cat && CATEGORY_DEFAULT_IMAGE[cat]) return CATEGORY_DEFAULT_IMAGE[cat]
-  return STOREFRONT_PRODUCT_FALLBACK
+  return FALLBACK_IMAGE_POOL[poolIndexForProduct(product)]
 }
 
 /** Productos cuya foto principal falló al cargar (Vue no debe reaplicar la URL rota). */
