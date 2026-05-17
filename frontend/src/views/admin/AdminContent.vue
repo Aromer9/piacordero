@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAdminApi } from '../../composables/useAdminApi.js'
+import { mediaSrc } from '../../constants/images.js'
 
 const { getSiteContent, updateSiteContent, uploadImage } = useAdminApi()
 
@@ -151,7 +152,7 @@ onMounted(load)
           <div class="ac__field">
             <label class="ac__label">Foto principal</label>
             <div class="ac__img-row">
-              <img v-if="about.image_main" :src="about.image_main" class="ac__img-thumb" />
+              <img v-if="about.image_main" :src="mediaSrc(about.image_main)" class="ac__img-thumb" />
               <button type="button" class="ac__btn-upload" @click="handleImageUpload('image_main', about)" :disabled="uploadingField === 'image_main'">
                 {{ uploadingField === 'image_main' ? 'Subiendo...' : '↑ Subir foto' }}
               </button>
@@ -160,7 +161,7 @@ onMounted(load)
           <div class="ac__field">
             <label class="ac__label">Foto secundaria</label>
             <div class="ac__img-row">
-              <img v-if="about.image_2" :src="about.image_2" class="ac__img-thumb" />
+              <img v-if="about.image_2" :src="mediaSrc(about.image_2)" class="ac__img-thumb" />
               <button type="button" class="ac__btn-upload" @click="handleImageUpload('image_2', about)" :disabled="uploadingField === 'image_2'">
                 {{ uploadingField === 'image_2' ? 'Subiendo...' : '↑ Subir foto' }}
               </button>
@@ -244,7 +245,7 @@ onMounted(load)
           <div class="ac__field">
             <label class="ac__label">Imagen principal</label>
             <div class="ac__img-row">
-              <img v-if="hero.image_main" :src="hero.image_main" class="ac__img-thumb" />
+              <img v-if="hero.image_main" :src="mediaSrc(hero.image_main)" class="ac__img-thumb" />
               <button type="button" class="ac__btn-upload" @click="handleImageUpload('image_main', hero)" :disabled="uploadingField === 'image_main'">
                 {{ uploadingField === 'image_main' ? 'Subiendo...' : '↑ Subir' }}
               </button>
@@ -253,7 +254,7 @@ onMounted(load)
           <div class="ac__field">
             <label class="ac__label">Imagen 2 (collage)</label>
             <div class="ac__img-row">
-              <img v-if="hero.image_2" :src="hero.image_2" class="ac__img-thumb" />
+              <img v-if="hero.image_2" :src="mediaSrc(hero.image_2)" class="ac__img-thumb" />
               <button type="button" class="ac__btn-upload" @click="handleImageUpload('image_2', hero)" :disabled="uploadingField === 'image_2'">
                 {{ uploadingField === 'image_2' ? 'Subiendo...' : '↑ Subir' }}
               </button>
@@ -262,7 +263,7 @@ onMounted(load)
           <div class="ac__field">
             <label class="ac__label">Imagen 3 (collage)</label>
             <div class="ac__img-row">
-              <img v-if="hero.image_3" :src="hero.image_3" class="ac__img-thumb" />
+              <img v-if="hero.image_3" :src="mediaSrc(hero.image_3)" class="ac__img-thumb" />
               <button type="button" class="ac__btn-upload" @click="handleImageUpload('image_3', hero)" :disabled="uploadingField === 'image_3'">
                 {{ uploadingField === 'image_3' ? 'Subiendo...' : '↑ Subir' }}
               </button>

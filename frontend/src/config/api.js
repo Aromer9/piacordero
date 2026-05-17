@@ -27,13 +27,23 @@ const _resolvedOrigin =
   normalizeBackendOriginVar(import.meta.env.VITE_BACKEND_ORIGIN || "") ||
   originFromApiRoot(VITE_API_ROOT)
 
-export function backendOrigin() {
-  return _resolvedOrigin
-}
-
 /** Base del API: mismo origen que `/uploads` en producción. */
 export const API_BASE = _resolvedOrigin
   ? `${_resolvedOrigin}/api`
   : /^https?:\/\//i.test(VITE_API_ROOT)
     ? VITE_API_ROOT.replace(/\/$/, "")
     : "/api"
+
+function originFromAbsoluteApiBase(base) {
+  if (typeof base !== "string" || !/^https?:\/\//i.test(base)) return ""
+  try {
+    return new URL(base).origin
+  } catch {
+    return ""
+  }
+}
+
+export function backendOrigin() {
+  if (_resolvedOrigin) return _resolvedOrigin
+  return originFromAbsoluteApiBase(API_BASE)
+}

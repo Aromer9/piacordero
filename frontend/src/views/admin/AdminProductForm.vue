@@ -128,12 +128,9 @@ async function handleSubmit() {
       image_url: img || '',
     }
 
-    console.log('[AdminProductForm] payload a enviar →', JSON.stringify(payload))
-
     let saved
     if (isEdit.value && props.product?._id) {
       saved = await updateProduct(props.product._id, payload)
-      console.log('[AdminProductForm] respuesta del servidor →', JSON.stringify(saved))
     } else {
       saved = await createProduct(payload)
     }
