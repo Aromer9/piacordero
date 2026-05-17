@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { resolvePublicOrUpload } from '../../constants/images.js'
 
 const DEFAULTS = {
@@ -21,14 +21,21 @@ const props = defineProps({
   },
 })
 
+/** Tras un error de carga, Vue no debe volver a aplicar la URL rota del CMS. */
+const heroImgFailed = ref(new Set())
+
 const display = computed(() => {
   const c = props.content || {}
+  const pick = (key) =>
+    heroImgFailed.value.has(key)
+      ? DEFAULTS[key]
+      : resolvePublicOrUpload(c[key], DEFAULTS[key])
   return {
     ...DEFAULTS,
     ...c,
-    image_main: resolvePublicOrUpload(c.image_main, DEFAULTS.image_main),
-    image_2: resolvePublicOrUpload(c.image_2, DEFAULTS.image_2),
-    image_3: resolvePublicOrUpload(c.image_3, DEFAULTS.image_3),
+    image_main: pick('image_main'),
+    image_2: pick('image_2'),
+    image_3: pick('image_3'),
   }
 })
 
@@ -38,6 +45,14 @@ function scrollTo(id) {
     const top = el.getBoundingClientRect().top + window.scrollY - 68
     window.scrollTo({ top, behavior: 'smooth' })
   }
+}
+
+function onHeroImgError(e) {
+  const el = e.target
+  if (!(el instanceof HTMLImageElement)) return
+  const key = el.dataset.fallbackKey
+  if (!key || heroImgFailed.value.has(key)) return
+  heroImgFailed.value = new Set([...heroImgFailed.value, key])
 }
 </script>
 
@@ -71,7 +86,13 @@ function scrollTo(id) {
       <!-- Lado derecho: collage de fotos -->
       <div class="hero__gallery fade-in" data-delay="200">
         <div class="hero__gallery-main">
-          <img :src="display.image_main" alt="Torta principal" loading="eager" />
+          <img
+            :src="display.image_main"
+            alt="Torta principal"
+            loading="eager"
+            data-fallback-key="image_main"
+            @error="onHeroImgError"
+          />
           <div class="hero__badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             <div>
@@ -81,8 +102,20 @@ function scrollTo(id) {
           </div>
         </div>
         <div class="hero__gallery-side">
-          <img :src="display.image_2" alt="Creación 2" loading="eager" />
-          <img :src="display.image_3" alt="Creación 3" loading="eager" />
+          <img
+            :src="display.image_2"
+            alt="Creación 2"
+            loading="eager"
+            data-fallback-key="image_2"
+            @error="onHeroImgError"
+          />
+          <img
+            :src="display.image_3"
+            alt="Creación 3"
+            loading="eager"
+            data-fallback-key="image_3"
+            @error="onHeroImgError"
+          />
         </div>
       </div>
     </div>

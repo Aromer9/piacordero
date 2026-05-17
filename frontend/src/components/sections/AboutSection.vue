@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { resolvePublicOrUpload } from '../../constants/images.js'
 
 const DEFAULTS = {
@@ -22,15 +22,29 @@ const props = defineProps({
   },
 })
 
+const aboutImgFailed = ref(new Set())
+
 const display = computed(() => {
   const c = props.content || {}
+  const pick = (key) =>
+    aboutImgFailed.value.has(key)
+      ? DEFAULTS[key]
+      : resolvePublicOrUpload(c[key], DEFAULTS[key])
   return {
     ...DEFAULTS,
     ...c,
-    image_main: resolvePublicOrUpload(c.image_main, DEFAULTS.image_main),
-    image_2: resolvePublicOrUpload(c.image_2, DEFAULTS.image_2),
+    image_main: pick('image_main'),
+    image_2: pick('image_2'),
   }
 })
+
+function onAboutImgError(e) {
+  const el = e.target
+  if (!(el instanceof HTMLImageElement)) return
+  const key = el.dataset.fallbackKey
+  if (!key || aboutImgFailed.value.has(key)) return
+  aboutImgFailed.value = new Set([...aboutImgFailed.value, key])
+}
 </script>
 
 <template>
@@ -40,10 +54,24 @@ const display = computed(() => {
       <!-- Izquierda: fotos superpuestas -->
       <div class="about__images fade-in">
         <div class="about__img-main-wrap">
-          <img :src="display.image_main" :alt="`Foto de ${display.signature}`" class="about__img-main" loading="lazy" />
+          <img
+            :src="display.image_main"
+            :alt="`Foto de ${display.signature}`"
+            class="about__img-main"
+            loading="lazy"
+            data-fallback-key="image_main"
+            @error="onAboutImgError"
+          />
         </div>
         <div class="about__img-secondary-wrap">
-          <img :src="display.image_2" alt="En la cocina" class="about__img-secondary" loading="lazy" />
+          <img
+            :src="display.image_2"
+            alt="En la cocina"
+            class="about__img-secondary"
+            loading="lazy"
+            data-fallback-key="image_2"
+            @error="onAboutImgError"
+          />
           <div class="about__since-badge">
             <span class="about__since-text">En cocina desde</span>
             <span class="about__since-year">{{ display.since_year }}</span>
