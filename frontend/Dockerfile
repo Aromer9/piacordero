@@ -2,6 +2,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Railway (y otros) suelen poner NODE_ENV=production durante el build de Docker.
+# Eso hace que `npm ci` omita devDependencies → no se instala Vite y `npm run build` falla.
+ENV NODE_ENV=development
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
@@ -12,6 +16,8 @@ ARG VITE_BACKEND_ORIGIN
 ENV VITE_BACKEND_ORIGIN=$VITE_BACKEND_ORIGIN
 
 RUN npm run build
+
+ENV NODE_ENV=production
 
 EXPOSE 4173
 # serve es más estable que vite preview detrás del healthcheck de Railway
