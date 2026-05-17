@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAdminApi } from '../../composables/useAdminApi.js'
-import { productImageSrc, isVideo } from '../../constants/images.js'
+import { productImageSrc, isVideo, mediaSrc } from '../../constants/images.js'
 import { hasTierPrices, tierPricesSummary } from '../../utils/productPrices.js'
 import AdminProductForm from './AdminProductForm.vue'
 
@@ -110,7 +110,7 @@ onMounted(load)
         <div class="ap__card-img">
           <video
             v-if="isVideo(product.image_url)"
-            :src="product.image_url"
+            :src="mediaSrc(product.image_url)"
             muted loop autoplay playsinline
             class="ap__card-video"
           />

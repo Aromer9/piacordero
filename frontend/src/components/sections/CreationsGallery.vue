@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { productImageSrc, isVideo } from '../../constants/images.js'
+import { productImageSrc, isVideo, mediaSrc } from '../../constants/images.js'
 import { hasTierPrices, tierPricesSummary, tierPriceRowsForDetail } from '../../utils/productPrices.js'
 
 const props = defineProps({
@@ -162,7 +162,7 @@ onBeforeUnmount(() => {
         >
           <video
             v-if="isVideo(product.image_url)"
-            :src="product.image_url"
+            :src="mediaSrc(product.image_url)"
             class="gallery__img"
             muted
             loop
@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
           <div class="featured__card-img-wrap" role="button" tabindex="0" @click="openDetail(product)" @keydown.enter.prevent="openDetail(product)" @keydown.space.prevent="openDetail(product)">
             <video
               v-if="isVideo(product.image_url)"
-              :src="product.image_url"
+              :src="mediaSrc(product.image_url)"
               muted loop autoplay playsinline
               style="width:100%;height:100%;object-fit:cover;object-position:center 20%"
             />
@@ -287,7 +287,7 @@ onBeforeUnmount(() => {
         <div class="featured-detail__img">
           <video
             v-if="isVideo(selectedProduct.image_url)"
-            :src="selectedProduct.image_url"
+            :src="mediaSrc(selectedProduct.image_url)"
             muted loop autoplay playsinline
             class="featured-detail__video"
           />

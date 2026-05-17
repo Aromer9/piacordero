@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, nextTick } from 'vue'
 import { useAdminApi } from '../../composables/useAdminApi.js'
-import { productImageSrc, isVideo } from '../../constants/images.js'
+import { productImageSrc, isVideo, mediaSrc } from '../../constants/images.js'
 import { numOrNull } from '../../utils/productPrices.js'
 
 const props = defineProps({
@@ -166,7 +166,7 @@ const CATEGORIES = [
         <div class="pf__img-preview" v-if="form.image_url">
           <video
             v-if="isVideo(form.image_url)"
-            :src="form.image_url"
+            :src="mediaSrc(form.image_url)"
             class="pf__preview-video"
             muted
             loop

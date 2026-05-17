@@ -1,10 +1,11 @@
 import axios from 'axios'
 import { getToken, clearToken } from './useAuth.js'
+import { API_BASE } from '../config/api.js'
 
 function adminClient() {
   const token = getToken()
   const client = axios.create({
-    baseURL: '/api',
+    baseURL: API_BASE,
     timeout: 15000,
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })

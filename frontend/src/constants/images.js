@@ -4,6 +4,19 @@ export const PRODUCT_IMAGE_PLACEHOLDER =
 
 const VIDEO_EXTS = new Set([".mp4", ".webm", ".mov", ".m4v", ".ogg"])
 
+function backendOrigin() {
+  return (import.meta.env.VITE_BACKEND_ORIGIN || '').trim().replace(/\/$/, '')
+}
+
+/** Resuelve `/uploads/...` contra el backend en producción (VITE_BACKEND_ORIGIN). */
+export function mediaSrc(url) {
+  const u = typeof url === "string" ? url.trim() : ""
+  if (!u) return u
+  const o = backendOrigin()
+  if (o && u.startsWith("/uploads")) return `${o}${u}`
+  return u
+}
+
 /** Devuelve true si la URL apunta a un archivo de vídeo. */
 export function isVideo(url) {
   if (!url || typeof url !== "string") return false
@@ -12,6 +25,7 @@ export function isVideo(url) {
 }
 
 export function productImageSrc(url) {
-  const u = typeof url === "string" ? url.trim() : ""
+  const raw = typeof url === "string" ? url.trim() : ""
+  const u = mediaSrc(raw) || raw
   return u || PRODUCT_IMAGE_PLACEHOLDER
 }
