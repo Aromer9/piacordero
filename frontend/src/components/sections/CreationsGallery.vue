@@ -121,7 +121,6 @@ function categoryLabel(product) {
 const featuredTrackRef = ref(null)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
-/** Muestra ambas flechas cuando hay overflow horizontal (la izquierda queda disabled al inicio). */
 const featuredCarouselScrollable = ref(false)
 
 function updateScrollState() {
@@ -145,12 +144,21 @@ function scrollFeatured(dir) {
   el.scrollBy({ left: dir * amount, behavior: 'smooth' })
 }
 
-onMounted(() => {
-  nextTick(() => {
+/*
+ * El track usa v-else (se monta solo cuando loading=false). Si onMounted corre mientras
+ * loading=true, featuredTrackRef es null y el listener de 'scroll' nunca se adjunta,
+ * dejando canScrollLeft siempre false. Observar el ref soluciona el timing.
+ */
+watch(featuredTrackRef, (el, oldEl) => {
+  if (oldEl) oldEl.removeEventListener('scroll', updateScrollState)
+  if (el) nextTick(() => {
     updateScrollState()
-    featuredTrackRef.value?.addEventListener('scroll', updateScrollState, { passive: true })
-    window.addEventListener('resize', updateScrollState, { passive: true })
+    el.addEventListener('scroll', updateScrollState, { passive: true })
   })
+})
+
+onMounted(() => {
+  window.addEventListener('resize', updateScrollState, { passive: true })
 })
 
 onBeforeUnmount(() => {
