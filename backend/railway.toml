@@ -1,0 +1,10 @@
+# Preferir Docker en Railway (evita fallos de autodetección de Railpack en algunos entornos).
+# Root Directory del servicio debe ser: backend
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 60
