@@ -15,6 +15,9 @@ COPY . .
 # URL pública del API (sin /api al final). En Railway: variable en el servicio Front, disponible en build.
 ARG VITE_BACKEND_ORIGIN
 ENV VITE_BACKEND_ORIGIN=$VITE_BACKEND_ORIGIN
+# Alternativa: URL absoluta del API (p. ej. https://back.up.railway.app/api). Si falta VITE_BACKEND_ORIGIN, el origen se deduce de aquí para /uploads y axios.
+ARG VITE_API_ROOT
+ENV VITE_API_ROOT=$VITE_API_ROOT
 
 RUN npm run build
 

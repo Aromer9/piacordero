@@ -27,8 +27,9 @@ function uploadsResourcePath(pathname) {
  * que en producción apuntarían a un host inexistente para el visitante.
  */
 export function mediaSrc(url) {
-  const u = typeof url === "string" ? url.trim() : ""
+  let u = typeof url === "string" ? url.trim() : ""
   if (!u) return u
+  if (u.startsWith("//")) u = `https:${u}`
   const o = backendOrigin()
   if (!o) return u
 

@@ -44,7 +44,12 @@ const failedProductImages = ref(new Set())
 
 function productMediaId(product) {
   const id = product?._id ?? product?.id
-  return id != null && id !== '' ? String(id) : ''
+  if (id != null && id !== "") return String(id)
+  const img = (product?.image_url || "").trim()
+  if (img) return `u:${img}`
+  const name = (product?.name || "").trim()
+  if (name) return `n:${name}`
+  return ""
 }
 
 function productCardSrc(product) {
