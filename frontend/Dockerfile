@@ -7,7 +7,8 @@ WORKDIR /app
 ENV NODE_ENV=development
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# npm ci es estricto con optional deps (p. ej. @emnapi/* en rolldown); en Alpine/Linux a veces falla aunque el lock se generó en macOS.
+RUN npm install --no-audit --no-fund
 
 COPY . .
 
