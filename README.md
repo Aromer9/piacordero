@@ -175,3 +175,9 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 Para producción, servir la carpeta `dist/` con Nginx o similar, y configurar el proxy reverso hacia FastAPI.
+
+---
+
+## Repositorio
+
+Código fuente en GitHub: [github.com/Aromer9/piacordero](https://github.com/Aromer9/piacordero)
