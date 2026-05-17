@@ -31,6 +31,7 @@ class ProductCreate(BaseModel):
     category: Category
     image_url: OptionalImageUrl = None
     featured: bool = False
+    sold_out: bool = False
     order: int = 0
     price: int | None = None
     price_8_10p: int | None = None
@@ -46,6 +47,7 @@ class ProductUpdate(BaseModel):
     category: Optional[Category] = None
     image_url: OptionalImageUrl = None
     featured: Optional[bool] = None
+    sold_out: Optional[bool] = None
     order: Optional[int] = None
     price: Optional[int] = None
     price_8_10p: Optional[int] = None
@@ -62,6 +64,7 @@ class ProductOut(BaseModel):
     category: Category
     image_url: Optional[str] = None
     featured: bool
+    sold_out: bool = False
     order: int
     price: Optional[int] = None
     price_8_10p: Optional[int] = None
@@ -105,4 +108,5 @@ def serialize_product(doc: dict) -> dict:
     for key in ("price", "price_8_10p", "price_15p", "price_20p", "price_30p"):
         if key in doc and doc[key] is not None:
             doc[key] = int(doc[key])
+    doc["sold_out"] = bool(doc.get("sold_out"))
     return doc

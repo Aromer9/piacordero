@@ -14,14 +14,14 @@ import InstagramSection from '../components/sections/InstagramSection.vue'
 const { getProducts, getSiteContent } = useApi()
 
 const FALLBACK_PRODUCTS = [
-  { _id: '1', name: 'Torta Frambuesas', description: 'Bizcocho de vainilla con crema diplomática y frambuesas frescas', category: 'tortas', image_url: '/images/torta-frambuesas.jpg', featured: true, price: 32000, price_15p: 32000, price_20p: 42000, price_30p: 56000, badge: 'Favorita' },
-  { _id: '2', name: 'Torta Naranja & Lavanda', description: 'Naked cake con crema de naranja, merengues y naranjas deshidratadas', category: 'tortas', image_url: '/images/torta-naranja-lavanda.jpg', featured: true, price: 38000, badge: null },
-  { _id: '3', name: 'Torta Frutos Rojos', description: 'Crema chantilly con frutillas, moras, arándanos y frambuesas de temporada', category: 'tortas', image_url: '/images/torta-frutos-rojos.jpg', featured: true, price: 32000, badge: null },
-  { _id: '4', name: 'Pavlova de Frambuesas', description: 'Merengue crujiente por fuera y suave por dentro con frambuesas y menta', category: 'temporada', image_url: '/images/pavlova-frambuesas.jpg', featured: true, price: 28000, badge: 'Temporada' },
-  { _id: '5', name: 'Torta Limón & Arándanos', description: 'Crema de limón con decoración en espiral, arándanos y flores comestibles', category: 'tartas', image_url: '/images/torta-limon-top.jpg', featured: false, price: 30000, badge: null },
-  { _id: '6', name: 'Torta Espiral de Limón', description: 'Crema de vainilla con espiral artesanal, arándanos y flores silvestres', category: 'tartas', image_url: '/images/torta-espiral-top.jpg', featured: false, price: 28000, badge: null },
-  { _id: '7', name: 'Naked Cake Naranja', description: 'Naked cake con naranjas deshidratadas, almendras y flores de lavanda', category: 'tortas', image_url: '/images/naked-cake-naranja.jpg', featured: false, price: 36000, badge: null },
-  { _id: '8', name: 'Torta Naranja Festiva', description: 'Torta festiva con merengues, naranjas caramelizadas y lavanda', category: 'tortas', image_url: '/images/torta-naranja-top.jpg', featured: false, price: 34000, badge: null },
+  { _id: '1', name: 'Torta Frambuesas', description: 'Bizcocho de vainilla con crema diplomática y frambuesas frescas', category: 'tortas', image_url: '/images/torta-frambuesas.jpg', featured: true, sold_out: false, price: 32000, price_15p: 32000, price_20p: 42000, price_30p: 56000, badge: 'Favorita' },
+  { _id: '2', name: 'Torta Naranja & Lavanda', description: 'Naked cake con crema de naranja, merengues y naranjas deshidratadas', category: 'tortas', image_url: '/images/torta-naranja-lavanda.jpg', featured: true, sold_out: false, price: 38000, badge: null },
+  { _id: '3', name: 'Torta Frutos Rojos', description: 'Crema chantilly con frutillas, moras, arándanos y frambuesas de temporada', category: 'tortas', image_url: '/images/torta-frutos-rojos.jpg', featured: true, sold_out: false, price: 32000, badge: null },
+  { _id: '4', name: 'Pavlova de Frambuesas', description: 'Merengue crujiente por fuera y suave por dentro con frambuesas y menta', category: 'temporada', image_url: '/images/pavlova-frambuesas.jpg', featured: true, sold_out: false, price: 28000, badge: 'Temporada' },
+  { _id: '5', name: 'Torta Limón & Arándanos', description: 'Crema de limón con decoración en espiral, arándanos y flores comestibles', category: 'tartas', image_url: '/images/torta-limon-top.jpg', featured: false, sold_out: false, price: 30000, badge: null },
+  { _id: '6', name: 'Torta Espiral de Limón', description: 'Crema de vainilla con espiral artesanal, arándanos y flores silvestres', category: 'tartas', image_url: '/images/torta-espiral-top.jpg', featured: false, sold_out: false, price: 28000, badge: null },
+  { _id: '7', name: 'Naked Cake Naranja', description: 'Naked cake con naranjas deshidratadas, almendras y flores de lavanda', category: 'tortas', image_url: '/images/naked-cake-naranja.jpg', featured: false, sold_out: false, price: 36000, badge: null },
+  { _id: '8', name: 'Torta Naranja Festiva', description: 'Torta festiva con merengues, naranjas caramelizadas y lavanda', category: 'tortas', image_url: '/images/torta-naranja-top.jpg', featured: false, sold_out: false, price: 34000, badge: null },
 ]
 
 const products = ref([])

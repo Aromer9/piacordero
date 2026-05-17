@@ -27,6 +27,7 @@ const form = ref({
   price_30p: '',
   badge: '',
   featured: false,
+  sold_out: false,
   order: 0,
 })
 
@@ -65,6 +66,7 @@ watch(() => props.product, (p) => {
       price_30p: p30,
       badge: p.badge || '',
       featured: p.featured || false,
+      sold_out: !!p.sold_out,
       order: p.order || 0,
     }
   } else {
@@ -79,6 +81,7 @@ watch(() => props.product, (p) => {
       price_30p: '',
       badge: '',
       featured: false,
+      sold_out: false,
       order: 0,
     }
   }
@@ -125,6 +128,7 @@ async function handleSubmit() {
       description: (form.value.description || '').trim(),
       category: form.value.category,
       featured: !!form.value.featured,
+      sold_out: !!form.value.sold_out,
       order: Number(form.value.order) || 0,
       price_8_10p: p810,
       price_15p: p15,
@@ -309,6 +313,11 @@ const CATEGORIES = [
       <label class="pf__checkbox">
         <input v-model="form.featured" type="checkbox" />
         <span>Mostrar como destacado en "Lo más pedido"</span>
+      </label>
+
+      <label class="pf__checkbox">
+        <input v-model="form.sold_out" type="checkbox" />
+        <span>Agotado — no se podrá pedir por WhatsApp; en el sitio se informa al cliente</span>
       </label>
 
       <p v-if="error" class="pf__error">{{ error }}</p>

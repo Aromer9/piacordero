@@ -83,6 +83,8 @@ async def update_product(product_id: str, data: ProductUpdate):
         update_data["category"] = data.category.value if isinstance(data.category, Category) else data.category
     if data.featured is not None:
         update_data["featured"] = data.featured
+    if data.sold_out is not None:
+        update_data["sold_out"] = bool(data.sold_out)
     if data.order is not None:
         update_data["order"] = int(data.order)
 

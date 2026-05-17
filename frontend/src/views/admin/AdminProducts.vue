@@ -116,10 +116,12 @@ onMounted(load)
           />
           <img v-else :src="productImageSrc(product.image_url)" :alt="product.name" loading="lazy" />
           <span v-if="product.featured" class="ap__card-featured">★ Destacado</span>
+          <span v-if="product.sold_out" class="ap__card-soldout">Agotado</span>
         </div>
         <div class="ap__card-body">
           <div class="ap__card-meta">
             <span class="ap__card-cat">{{ CATEGORY_LABELS[product.category] }}</span>
+            <span v-if="product.sold_out" class="ap__card-meta-tag">Sin pedidos</span>
             <span v-if="product.badge" class="ap__card-badge">{{ product.badge }}</span>
           </div>
           <h3 class="ap__card-name">{{ product.name }}</h3>
@@ -269,6 +271,31 @@ onMounted(load)
   font-weight: 500;
   letter-spacing: 0.08em;
   padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.ap__card-soldout {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(80, 52, 44, 0.92);
+  color: #faf3ec;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.ap__card-meta-tag {
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: rgba(120, 100, 92, 0.15);
+  padding: 2px 8px;
   border-radius: 20px;
 }
 

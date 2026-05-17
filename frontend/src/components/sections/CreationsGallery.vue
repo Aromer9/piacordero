@@ -39,33 +39,7 @@ const filtered = computed(() => {
 
 const featured = computed(() => props.products.filter((p) => p.featured))
 
-/** Fotos estáticas de `public/images`: se elige una por producto (hash estable) para no repetir la misma en toda la fila. */
-const FALLBACK_IMAGE_POOL = [
-  '/images/torta-frambuesas.jpg',
-  '/images/torta-frutos-rojos.jpg',
-  '/images/torta-naranja-top.jpg',
-  '/images/torta-limon-top.jpg',
-  '/images/torta-espiral-top.jpg',
-  '/images/naked-cake-naranja.jpg',
-  '/images/pavlova-frambuesas.jpg',
-  '/images/torta-naranja-lavanda.jpg',
-]
-
-function poolIndexForProduct(product) {
-  const s = String(product?._id ?? product?.id ?? product?.name ?? 'x')
-  let h = 2166136261
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return Math.abs(h) % FALLBACK_IMAGE_POOL.length
-}
-
-function defaultPhotoForProduct(product) {
-  return FALLBACK_IMAGE_POOL[poolIndexForProduct(product)]
-}
-
-/** Productos cuya foto principal falló al cargar (Vue no debe reaplicar la URL rota). */
+/** Productos cuya URL de imagen falló al cargar: se muestra marcador, no otra torta aleatoria. */
 const failedProductImages = ref(new Set())
 
 const productsMediaSig = computed(() =>
@@ -88,9 +62,9 @@ function productMediaId(product) {
 
 function productCardSrc(product) {
   const pid = productMediaId(product)
-  if (pid && failedProductImages.value.has(pid)) return defaultPhotoForProduct(product)
-  const raw = (product?.image_url || '').trim()
-  if (!raw) return defaultPhotoForProduct(product)
+  const raw = (product?.image_url || "").trim()
+  if (!raw) return productImageSrc("")
+  if (pid && failedProductImages.value.has(pid)) return productImageSrc("")
   return productImageSrc(raw)
 }
 
@@ -147,12 +121,20 @@ function categoryLabel(product) {
 const featuredTrackRef = ref(null)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
+/** Muestra ambas flechas cuando hay overflow horizontal (la izquierda queda disabled al inicio). */
+const featuredCarouselScrollable = ref(false)
 
 function updateScrollState() {
   const el = featuredTrackRef.value
-  if (!el) return
+  if (!el) {
+    featuredCarouselScrollable.value = false
+    return
+  }
+  const sw = el.scrollWidth
+  const cw = el.clientWidth
+  featuredCarouselScrollable.value = sw > cw + 2
   canScrollLeft.value = el.scrollLeft > 4
-  canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4
+  canScrollRight.value = el.scrollLeft + cw < sw - 4
 }
 
 function scrollFeatured(dir) {
@@ -212,6 +194,7 @@ onBeforeUnmount(() => {
           v-for="(product, i) in filtered"
           :key="product._id"
           class="gallery__item fade-up"
+          :class="{ 'gallery__item--sold-out': product.sold_out }"
           :data-delay="(i % 4) * 60"
           data-hover
           role="button"
@@ -221,6 +204,7 @@ onBeforeUnmount(() => {
           @keydown.enter.prevent="openDetail(product)"
           @keydown.space.prevent="openDetail(product)"
         >
+          <span v-if="product.sold_out" class="gallery__ribbon" aria-hidden="true">Agotado</span>
           <video
             v-if="isVideo(product.image_url)"
             :src="mediaSrc(product.image_url)"
@@ -240,6 +224,7 @@ onBeforeUnmount(() => {
           />
           <div class="gallery__overlay">
             <h3 class="gallery__overlay-name">{{ product.name }}</h3>
+            <span v-if="product.sold_out" class="gallery__overlay-hint">Sin cupos por ahora — consulta otras opciones en el detalle</span>
             <span class="gallery__overlay-cta">Ver detalles →</span>
           </div>
         </div>
@@ -260,10 +245,11 @@ onBeforeUnmount(() => {
       <div class="featured__carousel">
         <!-- flecha izquierda -->
         <button
-          v-show="canScrollLeft"
+          v-show="featuredCarouselScrollable"
           type="button"
           class="featured__arrow featured__arrow--left"
           aria-label="Anterior"
+          :disabled="!canScrollLeft"
           @click="scrollFeatured(-1)"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -297,7 +283,10 @@ onBeforeUnmount(() => {
               loading="lazy"
               @error="onProductImgError(product)"
             />
-            <span v-if="product.badge" class="featured__card-badge">{{ product.badge }}</span>
+            <div v-if="product.badge || product.sold_out" class="featured__card-badges">
+              <span v-if="product.sold_out" class="featured__card-badge featured__card-badge--agotado">Agotado</span>
+              <span v-if="product.badge" class="featured__card-badge">{{ product.badge }}</span>
+            </div>
           </div>
           <div class="featured__card-body">
             <h3 class="featured__card-name">{{ product.name }}</h3>
@@ -317,8 +306,21 @@ onBeforeUnmount(() => {
                 desde {{ formatPrice(product.price) }}
               </span>
               <span class="featured__card-price" v-else>A consultar</span>
-              <button class="featured__card-btn" @click="openWhatsApp(product.name)">
+              <button
+                v-if="!product.sold_out"
+                type="button"
+                class="featured__card-btn"
+                @click="openWhatsApp(product.name)"
+              >
                 Pedir
+              </button>
+              <button
+                v-else
+                type="button"
+                class="featured__card-btn featured__card-btn--soldout"
+                disabled
+              >
+                Agotado
               </button>
             </div>
           </div>
@@ -327,10 +329,11 @@ onBeforeUnmount(() => {
 
         <!-- flecha derecha -->
         <button
-          v-show="canScrollRight"
+          v-show="featuredCarouselScrollable"
           type="button"
           class="featured__arrow featured__arrow--right"
           aria-label="Siguiente"
+          :disabled="!canScrollRight"
           @click="scrollFeatured(1)"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -365,7 +368,10 @@ onBeforeUnmount(() => {
             :alt="selectedProduct.name"
             @error="onProductImgError(selectedProduct)"
           />
-          <span v-if="selectedProduct.badge" class="featured-detail__badge">{{ selectedProduct.badge }}</span>
+          <div v-if="selectedProduct.badge || selectedProduct.sold_out" class="featured-detail__badges">
+            <span v-if="selectedProduct.sold_out" class="featured-detail__badge featured-detail__badge--agotado">Agotado</span>
+            <span v-if="selectedProduct.badge" class="featured-detail__badge">{{ selectedProduct.badge }}</span>
+          </div>
         </div>
         <div class="featured-detail__body">
           <p class="featured-detail__eyebrow">{{ categoryLabel(selectedProduct) }}</p>
@@ -373,6 +379,10 @@ onBeforeUnmount(() => {
             {{ selectedProduct.name }}
           </h3>
           <p class="featured-detail__desc">{{ selectedProduct.description }}</p>
+          <p v-if="selectedProduct.sold_out" class="featured-detail__soldout-copy">
+            Este producto está <strong>agotado</strong> por ahora: no tenemos cupos para nuevos pedidos con esta receta o fecha.
+            Si te interesa algo parecido u otra torta, escríbenos por WhatsApp desde la sección de contacto y vemos alternativas.
+          </p>
           <div class="featured-detail__prices">
             <p class="featured-detail__prices-title">Precios por tamaño</p>
             <dl class="featured-detail__price-list">
@@ -392,11 +402,20 @@ onBeforeUnmount(() => {
               Cerrar
             </button>
             <button
+              v-if="!selectedProduct.sold_out"
               type="button"
               class="featured-detail__btn featured-detail__btn--primary"
               @click="openWhatsApp(selectedProduct.name)"
             >
               Pedir por WhatsApp
+            </button>
+            <button
+              v-else
+              type="button"
+              class="featured-detail__btn featured-detail__btn--soldout"
+              disabled
+            >
+              Agotado — no disponible para pedido
             </button>
           </div>
         </div>
@@ -490,6 +509,28 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
+.gallery__item--sold-out .gallery__img,
+.gallery__item--sold-out video.gallery__img {
+  opacity: 0.88;
+}
+
+.gallery__ribbon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #faf3ec;
+  background: rgba(80, 52, 44, 0.92);
+  padding: 5px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
 .gallery__img {
   width: 100%;
   display: block;
@@ -523,6 +564,15 @@ onBeforeUnmount(() => {
   font-size: 0.95rem;
   font-weight: 400;
   color: #fff;
+}
+
+.gallery__overlay-hint {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 400;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 100%;
 }
 
 .gallery__overlay-cta {
@@ -619,6 +669,17 @@ onBeforeUnmount(() => {
   transform: translateY(-50%) scale(1.08);
 }
 
+.featured__arrow:disabled,
+.featured__arrow:disabled:hover {
+  opacity: 0.42;
+  cursor: not-allowed;
+  background: rgba(250, 243, 236, 0.92);
+  color: var(--color-rose-mid);
+  border-color: rgba(168, 79, 59, 0.18);
+  box-shadow: 0 1px 6px rgba(28, 16, 8, 0.06);
+  transform: translateY(-50%);
+}
+
 .featured__arrow--left  { left: -22px; }
 .featured__arrow--right { right: -22px; }
 
@@ -656,9 +717,7 @@ onBeforeUnmount(() => {
 }
 
 .featured__card-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  display: inline-block;
   background: rgba(250,243,236,0.95);
   color: var(--color-rose-mid);
   font-family: var(--font-sans);
@@ -668,6 +727,22 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
   padding: 4px 10px;
   border-radius: 20px;
+}
+
+.featured__card-badges {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.featured__card-badge--agotado {
+  background: rgba(80, 52, 44, 0.92);
+  color: #faf3ec;
 }
 
 .featured__card-body {
@@ -767,6 +842,14 @@ onBeforeUnmount(() => {
   color: var(--color-white);
 }
 
+.featured__card-btn--soldout,
+.featured__card-btn--soldout:hover {
+  background: rgba(120, 100, 92, 0.22);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .featured__skeleton {
   border-radius: 16px;
   background: var(--color-rose-light);
@@ -844,9 +927,7 @@ onBeforeUnmount(() => {
 }
 
 .featured-detail__badge {
-  position: absolute;
-  top: 14px;
-  left: 14px;
+  display: inline-block;
   background: rgba(250, 243, 236, 0.95);
   color: var(--color-rose-mid);
   font-family: var(--font-sans);
@@ -856,6 +937,22 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
   padding: 5px 12px;
   border-radius: 20px;
+}
+
+.featured-detail__badges {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.featured-detail__badge--agotado {
+  background: rgba(80, 52, 44, 0.92);
+  color: #faf3ec;
 }
 
 .featured-detail__body {
@@ -892,6 +989,18 @@ onBeforeUnmount(() => {
   color: var(--color-text-secondary);
   font-weight: 300;
   white-space: pre-wrap;
+}
+
+.featured-detail__soldout-copy {
+  margin: 0 0 8px;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  font-weight: 400;
+  background: rgba(168, 79, 59, 0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(168, 79, 59, 0.18);
 }
 
 .featured-detail__prices {
@@ -983,6 +1092,19 @@ onBeforeUnmount(() => {
 
 .featured-detail__btn--primary:hover {
   background: var(--color-rose-dark);
+}
+
+.featured-detail__btn--soldout,
+.featured-detail__btn--soldout:hover {
+  flex: 1;
+  min-width: 160px;
+  background: rgba(120, 100, 92, 0.2);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.featured-detail__btn--soldout:hover {
+  background: rgba(120, 100, 92, 0.24);
 }
 
 @keyframes shimmer {

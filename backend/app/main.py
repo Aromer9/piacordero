@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -34,11 +36,21 @@ async def public_config(request: Request):
     explicit = (settings.public_base_url or "").strip().rstrip("/")
     if explicit:
         return {"media_origin": explicit}
-    host = (request.headers.get("x-forwarded-host") or request.headers.get("host") or "").split(",")[0].strip()
-    proto = (request.headers.get("x-forwarded-proto") or "http").split(",")[0].strip()
+    # Dominio público del servicio en Railway (evita depender del Host interno).
+    railway = (os.getenv("RAILWAY_PUBLIC_DOMAIN") or "").strip().split(",")[0].strip()
+    if railway:
+        return {"media_origin": f"https://{railway}".rstrip("/")}
+    # No usar X-Forwarded-Host primero: si el navegador llama /api vía el mismo host que el SPA,
+    # suele ser el dominio del front y /uploads quedaría apuntando al sitio estático (fotos rotas).
+    host = (request.headers.get("host") or "").split(",")[0].strip()
+    proto = (request.headers.get("x-forwarded-proto") or request.url.scheme or "https").split(",")[0].strip()
     if not host:
         return {"media_origin": ""}
-    return {"media_origin": f"{proto}://{host}".rstrip("/")}
+    if "localhost" in host.lower() or host.startswith("127."):
+        scheme = "http"
+    else:
+        scheme = proto if proto in ("http", "https") else "https"
+    return {"media_origin": f"{scheme}://{host}".rstrip("/")}
 
 
 upload_dir = Path(settings.upload_dir)
