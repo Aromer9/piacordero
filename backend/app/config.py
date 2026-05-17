@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     mongodb_db: str = "piacordero"
     upload_dir: str = "uploads"
     allowed_origins: str = "http://localhost:5173"
+    # URL pública del API (mismo host que /uploads). Vacío: /api/config usa X-Forwarded-Host / Host.
+    public_base_url: str = ""
     admin_password: str = "piacordero2024"
     secret_key: str = "changeme-use-a-long-random-string-in-production"
     token_expire_hours: int = 72

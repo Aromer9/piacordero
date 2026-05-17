@@ -1,5 +1,16 @@
 import { backendOrigin } from '../config/api.js'
 
+/** Origen del backend inyectado al arrancar vía GET /api/config (Railway sin VITE en build). */
+let runtimeMediaOrigin = ""
+
+export function setRuntimeMediaOrigin(url) {
+  runtimeMediaOrigin = typeof url === "string" ? url.trim().replace(/\/$/, "") : ""
+}
+
+function effectiveMediaOrigin() {
+  return runtimeMediaOrigin || backendOrigin()
+}
+
 /** Imagen por defecto cuando un producto no tiene foto (SVG inline). */
 export const PRODUCT_IMAGE_PLACEHOLDER =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect fill='%23EDD9CC' width='800' height='600'/%3E%3Ctext x='400' y='300' dominant-baseline='middle' text-anchor='middle' fill='%23A84F3B' font-family='Georgia,serif' font-size='28' font-style='italic'%3ESin foto%3C/text%3E%3C/svg%3E"
@@ -30,7 +41,7 @@ export function mediaSrc(url) {
   let u = typeof url === "string" ? url.trim() : ""
   if (!u) return u
   if (u.startsWith("//")) u = `https:${u}`
-  const o = backendOrigin()
+  const o = effectiveMediaOrigin()
   if (!o) return u
 
   if (u.startsWith("/")) {
