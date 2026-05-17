@@ -68,10 +68,11 @@ async def update_product(product_id: str, data: ProductUpdate):
     update_data: dict = {
         "image_url":  data.image_url,
         "badge":      data.badge,
-        "price":      _int(data.price),
-        "price_15p":  _int(data.price_15p),
-        "price_20p":  _int(data.price_20p),
-        "price_30p":  _int(data.price_30p),
+        "price":        _int(data.price),
+        "price_8_10p":  _int(data.price_8_10p),
+        "price_15p":    _int(data.price_15p),
+        "price_20p":    _int(data.price_20p),
+        "price_30p":    _int(data.price_30p),
     }
     # Campos obligatorios: solo se actualizan si vienen con valor
     if data.name:

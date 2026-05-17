@@ -21,6 +21,7 @@ const form = ref({
   description: '',
   category: 'tortas',
   image_url: '',
+  price_8_10p: '',
   price_15p: '',
   price_20p: '',
   price_30p: '',
@@ -31,7 +32,7 @@ const form = ref({
 
 function hasAnyTierField(p) {
   if (!p) return false
-  return [p.price_15p, p.price_20p, p.price_30p].some(
+  return [p.price_8_10p, p.price_15p, p.price_20p, p.price_30p].some(
     (x) => x != null && x !== '' && Number.isFinite(Number(x)),
   )
 }
@@ -45,6 +46,7 @@ function tierFromApi(val) {
 watch(() => props.product, (p) => {
   isEdit.value = !!p
   if (p) {
+    let p810 = tierFromApi(p.price_8_10p)
     let p15 = tierFromApi(p.price_15p)
     let p20 = tierFromApi(p.price_20p)
     let p30 = tierFromApi(p.price_30p)
@@ -57,6 +59,7 @@ watch(() => props.product, (p) => {
       description: p.description || '',
       category: p.category || 'tortas',
       image_url: p.image_url || '',
+      price_8_10p: p810,
       price_15p: p15,
       price_20p: p20,
       price_30p: p30,
@@ -70,6 +73,7 @@ watch(() => props.product, (p) => {
       description: '',
       category: 'tortas',
       image_url: '',
+      price_8_10p: '',
       price_15p: '',
       price_20p: '',
       price_30p: '',
@@ -110,16 +114,19 @@ async function handleSubmit() {
     await nextTick()
 
     const img = (form.value.image_url || '').trim()
+    const isTartas = form.value.category === 'tartas'
+    const p810 = isTartas ? numOrNull(form.value.price_8_10p) : null
     const p15 = numOrNull(form.value.price_15p)
     const p20 = numOrNull(form.value.price_20p)
     const p30 = numOrNull(form.value.price_30p)
-    const tierNums = [p15, p20, p30].filter((x) => x != null)
+    const tierNums = [p810, p15, p20, p30].filter((x) => x != null)
     const payload = {
       name: form.value.name.trim(),
       description: (form.value.description || '').trim(),
       category: form.value.category,
       featured: !!form.value.featured,
       order: Number(form.value.order) || 0,
+      price_8_10p: p810,
       price_15p: p15,
       price_20p: p20,
       price_30p: p30,
@@ -224,8 +231,26 @@ const CATEGORIES = [
       <!-- Precios por tamaño (personas) -->
       <div class="pf__field">
         <label class="pf__label">Precios (CLP)</label>
-        <p class="pf__hint pf__hint--block">Rellena los tamaños que apliquen. Si el producto solo tenía un precio, quedará en 15 p.</p>
-        <div class="pf__row pf__row--tiers">
+        <p class="pf__hint pf__hint--block">
+          Rellena los tamaños que apliquen. En <strong>Tartas</strong> puedes indicar también 8 a 10 personas. Si el producto solo tenía un precio, quedará en 15 p.
+        </p>
+        <div
+          class="pf__row pf__row--tiers"
+          :class="{ 'pf__row--tiers-tartas': form.category === 'tartas' }"
+        >
+          <div v-if="form.category === 'tartas'" class="pf__field">
+            <label class="pf__label pf__label--sub">8 a 10 personas</label>
+            <input
+              v-model="form.price_8_10p"
+              type="text"
+              class="pf__input"
+              name="price_8_10p"
+              autocomplete="off"
+              placeholder="Ej: 28000"
+              inputmode="numeric"
+              maxlength="12"
+            />
+          </div>
           <div class="pf__field">
             <label class="pf__label pf__label--sub">15 personas</label>
             <input
@@ -320,8 +345,13 @@ const CATEGORIES = [
   grid-template-columns: 1fr 1fr 1fr;
 }
 
+.pf__row--tiers-tartas {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 @media (max-width: 520px) {
-  .pf__row--tiers {
+  .pf__row--tiers,
+  .pf__row--tiers-tartas {
     grid-template-columns: 1fr;
   }
 }
