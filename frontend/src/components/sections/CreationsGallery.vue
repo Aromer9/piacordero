@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { productImageSrc, isVideo, mediaSrc } from '../../constants/images.js'
+import { productImageSrc, isVideo, mediaSrc, PRODUCT_IMAGE_PLACEHOLDER } from '../../constants/images.js'
 import { hasTierPrices, tierPricesSummary, tierPriceRowsForDetail } from '../../utils/productPrices.js'
 
 const props = defineProps({
@@ -38,6 +38,26 @@ const filtered = computed(() => {
 })
 
 const featured = computed(() => props.products.filter((p) => p.featured))
+
+/** Productos cuya foto principal falló al cargar (Vue no debe reaplicar la URL rota). */
+const failedProductImages = ref(new Set())
+
+function productMediaId(product) {
+  const id = product?._id ?? product?.id
+  return id != null && id !== '' ? String(id) : ''
+}
+
+function productCardSrc(product) {
+  const pid = productMediaId(product)
+  if (pid && failedProductImages.value.has(pid)) return PRODUCT_IMAGE_PLACEHOLDER
+  return productImageSrc(product?.image_url)
+}
+
+function onProductImgError(product) {
+  const pid = productMediaId(product)
+  if (!pid || failedProductImages.value.has(pid)) return
+  failedProductImages.value = new Set([...failedProductImages.value, pid])
+}
 
 watch(featured, () => nextTick(updateScrollState))
 
@@ -171,10 +191,11 @@ onBeforeUnmount(() => {
           />
           <img
             v-else
-            :src="productImageSrc(product.image_url)"
+            :src="productCardSrc(product)"
             :alt="product.name"
             loading="lazy"
             class="gallery__img"
+            @error="onProductImgError(product)"
           />
           <div class="gallery__overlay">
             <h3 class="gallery__overlay-name">{{ product.name }}</h3>
@@ -228,7 +249,13 @@ onBeforeUnmount(() => {
               muted loop autoplay playsinline
               style="width:100%;height:100%;object-fit:cover;object-position:center 20%"
             />
-            <img v-else :src="productImageSrc(product.image_url)" :alt="product.name" loading="lazy" />
+            <img
+              v-else
+              :src="productCardSrc(product)"
+              :alt="product.name"
+              loading="lazy"
+              @error="onProductImgError(product)"
+            />
             <span v-if="product.badge" class="featured__card-badge">{{ product.badge }}</span>
           </div>
           <div class="featured__card-body">
@@ -291,7 +318,12 @@ onBeforeUnmount(() => {
             muted loop autoplay playsinline
             class="featured-detail__video"
           />
-          <img v-else :src="productImageSrc(selectedProduct.image_url)" :alt="selectedProduct.name" />
+          <img
+            v-else
+            :src="productCardSrc(selectedProduct)"
+            :alt="selectedProduct.name"
+            @error="onProductImgError(selectedProduct)"
+          />
           <span v-if="selectedProduct.badge" class="featured-detail__badge">{{ selectedProduct.badge }}</span>
         </div>
         <div class="featured-detail__body">

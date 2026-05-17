@@ -6,10 +6,19 @@ export const PRODUCT_IMAGE_PLACEHOLDER =
 
 const VIDEO_EXTS = new Set([".mp4", ".webm", ".mov", ".m4v", ".ogg"])
 
-function isUploadsPath(pathname) {
-  if (!pathname || typeof pathname !== "string") return false
-  const p = pathname.toLowerCase()
-  return p === "/uploads" || p.startsWith("/uploads/")
+/**
+ * Si `pathname` es un recurso bajo uploads, devuelve la ruta normalizada
+ * que empieza por `/uploads` (corrige `/api/uploads/...` por error de config).
+ */
+function uploadsResourcePath(pathname) {
+  if (!pathname || typeof pathname !== "string") return null
+  const p = pathname.replace(/\/+/g, "/")
+  const lower = p.toLowerCase()
+  if (lower === "/uploads" || lower.startsWith("/uploads/")) return p
+  if (lower === "/api/uploads" || lower.startsWith("/api/uploads/")) {
+    return p.replace(/^\/api/i, "")
+  }
+  return null
 }
 
 /**
@@ -23,7 +32,13 @@ export function mediaSrc(url) {
   const o = backendOrigin()
   if (!o) return u
 
-  if (u.startsWith("/uploads")) return `${o}${u}`
+  if (u.startsWith("/")) {
+    const q = u.indexOf("?")
+    const pathOnly = q >= 0 ? u.slice(0, q) : u
+    const search = q >= 0 ? u.slice(q) : ""
+    const mapped = uploadsResourcePath(pathOnly)
+    if (mapped) return `${o}${mapped}${search}`
+  }
 
   const lower = u.toLowerCase()
   if (lower.startsWith("uploads/")) return `${o}/${u}`
@@ -31,7 +46,8 @@ export function mediaSrc(url) {
   if (/^https?:\/\//i.test(u)) {
     try {
       const { pathname, search } = new URL(u)
-      if (isUploadsPath(pathname)) return `${o}${pathname}${search}`
+      const mapped = uploadsResourcePath(pathname)
+      if (mapped) return `${o}${mapped}${search}`
     } catch {
       /* URL inválida: se devuelve tal cual */
     }
