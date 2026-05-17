@@ -14,4 +14,5 @@ ENV VITE_BACKEND_ORIGIN=$VITE_BACKEND_ORIGIN
 RUN npm run build
 
 EXPOSE 4173
-CMD ["sh", "-c", "npx vite preview --host 0.0.0.0 --port ${PORT:-4173}"]
+# serve es más estable que vite preview detrás del healthcheck de Railway
+CMD ["sh", "-c", "exec ./node_modules/.bin/serve dist -s -l tcp://0.0.0.0:${PORT:-4173}"]
