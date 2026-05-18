@@ -37,6 +37,16 @@ const filtered = computed(() => {
   return props.products.filter((p) => p.category === activeCategory.value)
 })
 
+// Al cambiar de categoría los ítems se re-renderizan con fade-up (opacity:0) pero el
+// IntersectionObserver del padre ya corrió y no los vuelve a observar. Los hacemos
+// visibles manualmente en el siguiente tick para que no queden ocultos.
+watch(activeCategory, async () => {
+  await nextTick()
+  document.querySelectorAll('.gallery__item:not(.visible)').forEach((el) => {
+    el.classList.add('visible')
+  })
+})
+
 const featured = computed(() => props.products.filter((p) => p.featured))
 
 /** Productos cuya URL de imagen falló al cargar: se muestra marcador, no otra torta aleatoria. */
