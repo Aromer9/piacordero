@@ -389,6 +389,8 @@ const CATEGORIES = [
     grid-template-columns: 1fr;
   }
 }
+
+.pf__label--sub {
   font-size: 0.62rem;
   letter-spacing: 0.06em;
 }
