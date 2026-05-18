@@ -53,9 +53,13 @@ async def public_config(request: Request):
     return {"media_origin": f"{scheme}://{host}".rstrip("/")}
 
 
-upload_dir = Path(settings.upload_dir)
-upload_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=str(upload_dir)), name="uploads")
+# Servir /uploads desde disco solo en modo local (sin Cloudinary).
+# En producción con Cloudinary las URLs son absolutas (https://res.cloudinary.com/…)
+# y no pasan por este endpoint.
+if not settings.cloudinary_enabled:
+    upload_dir = Path(settings.upload_dir)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=str(upload_dir)), name="uploads")
 
 
 @app.get("/")

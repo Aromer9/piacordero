@@ -13,6 +13,18 @@ class Settings(BaseSettings):
     admin_password: str = "piacordero2024"
     secret_key: str = "changeme-use-a-long-random-string-in-production"
     token_expire_hours: int = 72
+    # Cloudinary — si están presentes, las subidas van a la nube (persisten entre deploys).
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
+
+    @property
+    def cloudinary_enabled(self) -> bool:
+        return bool(
+            self.cloudinary_cloud_name
+            and self.cloudinary_api_key
+            and self.cloudinary_api_secret
+        )
 
     class Config:
         env_file = ".env"
