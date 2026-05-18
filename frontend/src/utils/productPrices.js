@@ -23,6 +23,7 @@ export function numOrNull(v) {
 export function hasTierPrices(product) {
   if (!product) return false
   return [
+    product.price_2_3p,
     product.price_8_10p,
     product.price_15p,
     product.price_20p,
@@ -36,16 +37,17 @@ function numericTier(v) {
   return Number.isFinite(n) ? n : null
 }
 
-/** Filas para modal / detalle: tartas incluyen 8–10 p.; el resto 15 / 20 / 30 */
+/** Filas para modal / detalle: tartas incluyen 2–3 y 8–10 p.; el resto 15 / 20 / 30 */
 export function tierPriceRowsForDetail(product) {
   if (!product) return []
   const isTartas = product.category === 'tartas'
+  let p23 = isTartas ? numericTier(product.price_2_3p) : null
   let p810 = isTartas ? numericTier(product.price_8_10p) : null
   let p15 = numericTier(product.price_15p)
   let p20 = numericTier(product.price_20p)
   let p30 = numericTier(product.price_30p)
   const anyExplicit =
-    p810 != null || p15 != null || p20 != null || p30 != null
+    p23 != null || p810 != null || p15 != null || p20 != null || p30 != null
   if (!anyExplicit) {
     const leg = numericTier(product.price)
     if (leg != null) p15 = leg
@@ -57,7 +59,7 @@ export function tierPriceRowsForDetail(product) {
   })
   const rows = []
   if (isTartas) {
-    rows.push(row('8-10', '8 a 10 personas', p810))
+    rows.push(row('2-3', '2 a 3 personas', p23), row('8-10', '8 a 10 personas', p810))
   }
   rows.push(row(15, '15 personas', p15), row(20, '20 personas', p20), row(30, '30 personas', p30))
   return rows
@@ -67,6 +69,9 @@ export function tierPriceRowsForDetail(product) {
 export function tierPricesSummary(product) {
   if (!product) return null
   const lines = []
+  if (product.category === 'tartas' && product.price_2_3p) {
+    lines.push(`2–3 p.: ${formatMoneyCLP(product.price_2_3p)}`)
+  }
   if (product.category === 'tartas' && product.price_8_10p) {
     lines.push(`8–10 p.: ${formatMoneyCLP(product.price_8_10p)}`)
   }

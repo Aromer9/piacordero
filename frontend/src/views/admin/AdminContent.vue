@@ -184,7 +184,7 @@ onMounted(load)
         <div class="ac__fields">
           <div class="ac__field">
             <label class="ac__label">Teléfono</label>
-            <input v-model="contact.phone" type="text" class="ac__input" placeholder="+56 9 9896 46783" />
+            <input v-model="contact.phone" type="text" class="ac__input" placeholder="+56 9 8964 6783" />
           </div>
           <div class="ac__field">
             <label class="ac__label">Email</label>
@@ -196,7 +196,7 @@ onMounted(load)
           </div>
           <div class="ac__field">
             <label class="ac__label">Número WhatsApp <span class="ac__hint">(solo dígitos, con código país)</span></label>
-            <input v-model="contact.whatsapp_number" type="text" class="ac__input" placeholder="569989646783" />
+            <input v-model="contact.whatsapp_number" type="text" class="ac__input" placeholder="56989646783" />
           </div>
           <div class="ac__field ac__field--full">
             <label class="ac__label">Mensaje predefinido WhatsApp</label>

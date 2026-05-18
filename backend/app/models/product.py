@@ -34,6 +34,7 @@ class ProductCreate(BaseModel):
     sold_out: bool = False
     order: int = 0
     price: int | None = None
+    price_2_3p: int | None = None
     price_8_10p: int | None = None
     price_15p: int | None = None
     price_20p: int | None = None
@@ -50,6 +51,7 @@ class ProductUpdate(BaseModel):
     sold_out: Optional[bool] = None
     order: Optional[int] = None
     price: Optional[int] = None
+    price_2_3p: Optional[int] = None
     price_8_10p: Optional[int] = None
     price_15p: Optional[int] = None
     price_20p: Optional[int] = None
@@ -67,6 +69,7 @@ class ProductOut(BaseModel):
     sold_out: bool = False
     order: int
     price: Optional[int] = None
+    price_2_3p: Optional[int] = None
     price_8_10p: Optional[int] = None
     price_15p: Optional[int] = None
     price_20p: Optional[int] = None
@@ -87,6 +90,7 @@ def product_doc(data: ProductCreate) -> dict:
         img = img.strip()
     d["image_url"] = img or None
     tiers = [
+        d.get("price_2_3p"),
         d.get("price_8_10p"),
         d.get("price_15p"),
         d.get("price_20p"),
@@ -95,7 +99,7 @@ def product_doc(data: ProductCreate) -> dict:
     tiers_ok = [x for x in tiers if x is not None]
     if tiers_ok and d.get("price") is None:
         d["price"] = min(int(x) for x in tiers_ok)
-    for key in ("price", "price_8_10p", "price_15p", "price_20p", "price_30p"):
+    for key in ("price", "price_2_3p", "price_8_10p", "price_15p", "price_20p", "price_30p"):
         v = d.get(key)
         if v is not None:
             d[key] = int(v)
@@ -105,7 +109,7 @@ def product_doc(data: ProductCreate) -> dict:
 
 def serialize_product(doc: dict) -> dict:
     doc["_id"] = str(doc["_id"])
-    for key in ("price", "price_8_10p", "price_15p", "price_20p", "price_30p"):
+    for key in ("price", "price_2_3p", "price_8_10p", "price_15p", "price_20p", "price_30p"):
         if key in doc and doc[key] is not None:
             doc[key] = int(doc[key])
     doc["sold_out"] = bool(doc.get("sold_out"))

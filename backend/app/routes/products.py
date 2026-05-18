@@ -69,6 +69,7 @@ async def update_product(product_id: str, data: ProductUpdate):
         "image_url":  data.image_url,
         "badge":      data.badge,
         "price":        _int(data.price),
+        "price_2_3p":   _int(data.price_2_3p),
         "price_8_10p":  _int(data.price_8_10p),
         "price_15p":    _int(data.price_15p),
         "price_20p":    _int(data.price_20p),

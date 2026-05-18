@@ -3,10 +3,10 @@ defineProps({
   content: {
     type: Object,
     default: () => ({
-      phone: '+56 9 9896 46783',
+      phone: '+56 9 8964 6783',
       email: 'hola@piacordero.cl',
       instagram: '@piacordero_pasteleria',
-      whatsapp_number: '569989646783',
+      whatsapp_number: '56989646783',
       whatsapp_message: 'Hola Pía! Me gustaría encargar un pedido especial 🎂',
       location: 'Santiago, Chile',
     }),
