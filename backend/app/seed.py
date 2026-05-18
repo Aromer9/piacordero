@@ -147,7 +147,7 @@ SITE_CONTENT = [
             "steps": [
                 {
                     "title": "Conversamos",
-                    "description": "Me contás tu idea, la ocasión especial y tus sabores favoritos. Juntas diseñamos algo único para ti.",
+                    "description": "Me cuentas tu idea, la ocasión especial y tus sabores favoritos. Juntas diseñamos algo único para ti.",
                 },
                 {
                     "title": "Creamos",

@@ -4,7 +4,7 @@ defineProps({
     type: Object,
     default: () => ({
       steps: [
-        { title: 'Conversamos', description: 'Me contás tu idea, la ocasión especial y tus sabores favoritos. Juntas diseñamos algo único para ti.' },
+        { title: 'Conversamos', description: 'Me cuentas tu idea, la ocasión especial y tus sabores favoritos. Juntas diseñamos algo único para ti.' },
         { title: 'Creamos', description: 'Selecciono los mejores ingredientes de temporada y elaboro tu pedido con todo el cuidado artesanal.' },
         { title: 'Celebramos', description: 'Tu creación llega lista para hacer de tu momento algo verdaderamente memorable.' },
       ],
