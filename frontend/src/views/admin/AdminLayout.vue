@@ -14,6 +14,7 @@ function handleLogout() {
 const nav = [
   { to: '/admin/productos', label: 'Catálogo', icon: '🎂' },
   { to: '/admin/contenido', label: 'Contenido', icon: '✏️' },
+  { to: '/admin/analytics', label: 'Analytics', icon: '📊' },
 ]
 </script>
 

@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import { API_BASE, backendOrigin } from './config/api.js'
 import { setRuntimeMediaOrigin } from './constants/images.js'
+import { initAnalytics, trackPageView } from './composables/useAnalytics.js'
 import './assets/styles/global.css'
 
 async function bootstrap() {
@@ -21,6 +22,16 @@ async function bootstrap() {
   } catch {
     if (fromBuild) setRuntimeMediaOrigin(fromBuild)
   }
+
+  initAnalytics()
+
+  // Registrar page_view en cada navegación (excluye rutas admin)
+  router.afterEach((to) => {
+    if (!to.path.startsWith('/admin')) {
+      trackPageView(to.fullPath)
+    }
+  })
+
   createApp(App).use(router).mount('#app')
 }
 

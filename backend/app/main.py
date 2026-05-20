@@ -5,8 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
-from app.config import get_settings
-from app.routes import products, site_content, upload, auth
+from app.config import get_settings, get_db
+from app.routes import products, site_content, upload, auth, analytics
 
 settings = get_settings()
 
@@ -28,6 +28,16 @@ app.include_router(auth.router)
 app.include_router(products.router)
 app.include_router(site_content.router)
 app.include_router(upload.router)
+app.include_router(analytics.router)
+
+
+@app.on_event("startup")
+async def create_analytics_indexes():
+    db = get_db()
+    col = db.analytics_events
+    await col.create_index("session_id")
+    await col.create_index([("type", 1), ("timestamp", -1)])
+    await col.create_index([("page", 1), ("timestamp", -1)])
 
 
 @app.get("/api/config")

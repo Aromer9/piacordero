@@ -27,6 +27,11 @@ const routes = [
         name: 'admin-content',
         component: () => import('../views/admin/AdminContent.vue'),
       },
+      {
+        path: 'analytics',
+        name: 'admin-analytics',
+        component: () => import('../views/admin/AdminAnalytics.vue'),
+      },
     ],
   },
   {
