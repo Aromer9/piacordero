@@ -20,6 +20,7 @@ class ClickEvent(BaseModel):
     page: str
     element_label: Optional[str] = None
     element_tag: Optional[str] = None
+    section: Optional[str] = None
     x: Optional[float] = None
     y: Optional[float] = None
     timestamp: datetime

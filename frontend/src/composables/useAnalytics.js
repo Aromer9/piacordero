@@ -89,6 +89,76 @@ function flushTimeOnPage(page) {
 
 // --- Clicks ---
 
+const INTERACTIVE_TAGS = new Set(['button', 'a', 'input', 'select', 'textarea', 'img', 'video', 'svg'])
+
+/**
+ * Sube en el DOM hasta encontrar el primer ancestro interactivo significativo.
+ * Para img/video/svg retorna el elemento directamente sin subir.
+ */
+function findInteractiveAncestor(el) {
+  const selfTag = el.tagName?.toLowerCase()
+  // Elementos que son significativos por sí mismos — no subir
+  if (['img', 'video', 'svg'].includes(selfTag)) return el
+
+  let node = el
+  for (let i = 0; i < 6 && node && node !== document.body; i++) {
+    const tag = node.tagName?.toLowerCase()
+    if (INTERACTIVE_TAGS.has(tag)) return node
+    if (node.hasAttribute?.('data-track')) return node
+    node = node.parentElement
+  }
+  return el
+}
+
+/**
+ * Determina la sección semántica más cercana (id de <section> o <header>/<footer>).
+ */
+function findSection(el) {
+  let node = el
+  while (node && node !== document.body) {
+    const tag = node.tagName?.toLowerCase()
+    if (['section', 'header', 'footer', 'main', 'nav'].includes(tag)) {
+      return node.id || node.className?.split(' ')[0] || tag
+    }
+    node = node.parentElement
+  }
+  return null
+}
+
+/**
+ * Extrae una etiqueta legible priorizando atributos semánticos.
+ */
+function extractLabel(el) {
+  const tag = el.tagName?.toLowerCase()
+
+  // Para imágenes: alt > nombre del archivo en src
+  if (tag === 'img') {
+    const alt = el.getAttribute('alt')?.trim()
+    if (alt) return alt
+    const src = el.getAttribute('src') || ''
+    const filename = src.split('/').pop()?.split('?')[0]
+    return filename ? `img: ${filename.slice(0, 40)}` : 'img sin alt'
+  }
+
+  // Para links: texto visible > href limpio
+  if (tag === 'a') {
+    const text = el.innerText?.replace(/\s+/g, ' ').trim().slice(0, 50)
+    if (text) return text
+    const href = el.getAttribute('href') || ''
+    return href.replace(/^https?:\/\/[^/]+/, '').slice(0, 50) || href.slice(0, 50)
+  }
+
+  // Orden general
+  return (
+    el.getAttribute('data-track') ||
+    el.getAttribute('aria-label') ||
+    el.getAttribute('title') ||
+    el.getAttribute('placeholder') ||
+    el.innerText?.replace(/\s+/g, ' ').trim().slice(0, 50) ||
+    null
+  )
+}
+
 function onDocumentClick(e) {
   const target = e.target
   if (!target || !currentPage) return
@@ -96,19 +166,17 @@ function onDocumentClick(e) {
   // Ignorar clics dentro del panel admin
   if (currentPage.startsWith('/admin')) return
 
-  const tag = target.tagName?.toLowerCase() || ''
-  const label =
-    target.getAttribute('aria-label') ||
-    target.getAttribute('data-label') ||
-    target.innerText?.trim().slice(0, 60) ||
-    target.getAttribute('href') ||
-    null
+  const interactive = findInteractiveAncestor(target)
+  const tag = interactive.tagName?.toLowerCase() || ''
+  const label = extractLabel(interactive)
+  const section = findSection(interactive)
 
   push({
     type: 'click',
     page: currentPage,
     element_tag: tag,
     element_label: label || null,
+    section: section || null,
     x: Math.round(e.clientX),
     y: Math.round(e.clientY),
   })

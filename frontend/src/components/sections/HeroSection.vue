@@ -74,10 +74,10 @@ function onHeroImgError(e) {
           {{ display.subtitle }}
         </p>
         <div class="hero__actions fade-up" data-delay="240">
-          <button class="hero__btn-primary" @click="scrollTo('galeria')">
+          <button class="hero__btn-primary" @click="scrollTo('galeria')" data-track="Hero: Ver creaciones">
             Ver creaciones
           </button>
-          <button class="hero__btn-secondary" @click="scrollTo('contacto')">
+          <button class="hero__btn-secondary" @click="scrollTo('contacto')" data-track="Hero: Hacer un pedido">
             Hacer un pedido →
           </button>
         </div>

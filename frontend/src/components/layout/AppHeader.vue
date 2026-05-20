@@ -25,24 +25,24 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   <header class="header" :class="{ scrolled }">
     <div class="header__inner container">
 
-      <button class="header__logo" @click="scrollTo('hero')" aria-label="Inicio">
+      <button class="header__logo" @click="scrollTo('hero')" aria-label="Inicio" data-track="Logo: Pía Cordero">
         <span class="header__logo-name">Pía Cordero</span>
         <span class="header__logo-sub">Pastelería Artesanal</span>
       </button>
 
       <nav class="header__nav" :class="{ open: menuOpen }">
-        <button @click="scrollTo('galeria')">Galería</button>
-        <button @click="scrollTo('creaciones')">Tortas</button>
-        <button @click="scrollTo('sobre-mi')">Sobre mí</button>
-        <button @click="scrollTo('contacto')">Pedidos</button>
+        <button @click="scrollTo('galeria')" data-track="Nav: Galería">Galería</button>
+        <button @click="scrollTo('creaciones')" data-track="Nav: Tortas">Tortas</button>
+        <button @click="scrollTo('sobre-mi')" data-track="Nav: Sobre mí">Sobre mí</button>
+        <button @click="scrollTo('contacto')" data-track="Nav: Pedidos">Pedidos</button>
       </nav>
 
-      <button class="header__cta" @click="scrollTo('contacto')">
+      <button class="header__cta" @click="scrollTo('contacto')" data-track="CTA: Pedir ahora">
         <span class="header__cta-dot" aria-hidden="true" />
         Pedir ahora
       </button>
 
-      <button class="header__burger" :class="{ open: menuOpen }" @click="menuOpen = !menuOpen" aria-label="Menú">
+      <button class="header__burger" :class="{ open: menuOpen }" @click="menuOpen = !menuOpen" aria-label="Menú" data-track="Menú móvil">
         <span></span>
         <span></span>
       </button>

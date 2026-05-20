@@ -52,7 +52,12 @@ async def summary(days: Optional[int] = Query(30, ge=1, le=365)):
         {"$match": {"type": "click", "timestamp": {"$gte": since}}},
         {
             "$group": {
-                "_id": {"page": "$page", "label": "$element_label", "tag": "$element_tag"},
+                "_id": {
+                    "page": "$page",
+                    "label": "$element_label",
+                    "tag": "$element_tag",
+                    "section": "$section",
+                },
                 "count": {"$sum": 1},
             }
         },
@@ -118,6 +123,7 @@ async def summary(days: Optional[int] = Query(30, ge=1, le=365)):
                 "page": r["_id"]["page"],
                 "label": r["_id"].get("label"),
                 "tag": r["_id"].get("tag"),
+                "section": r["_id"].get("section"),
                 "count": r["count"],
             }
             for r in top_clicks

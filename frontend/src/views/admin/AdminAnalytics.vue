@@ -42,6 +42,79 @@ const totalVisits = computed(() => {
   if (!data.value) return 0
   return data.value.page_views.reduce((acc, r) => acc + r.visits, 0)
 })
+
+// --- Gráfico de línea SVG ---
+const W = 700
+const H = 160
+const PAD = { top: 16, right: 16, bottom: 32, left: 36 }
+
+const lineTooltip = ref(null) // { x, y, date, visits }
+
+const lineChart = computed(() => {
+  const pts = data.value?.daily_visits ?? []
+  if (pts.length < 2) return null
+
+  const maxVal = Math.max(...pts.map(p => p.visits), 1)
+  const minVal = 0
+
+  const innerW = W - PAD.left - PAD.right
+  const innerH = H - PAD.top - PAD.bottom
+
+  function cx(i) {
+    return PAD.left + (i / (pts.length - 1)) * innerW
+  }
+  function cy(v) {
+    return PAD.top + innerH - ((v - minVal) / (maxVal - minVal)) * innerH
+  }
+
+  const points = pts.map((p, i) => ({ x: cx(i), y: cy(p.visits), date: p.date, visits: p.visits }))
+
+  // Polilínea
+  const polyline = points.map(p => `${p.x},${p.y}`).join(' ')
+
+  // Área rellena (cierra abajo)
+  const area = [
+    `M${points[0].x},${PAD.top + innerH}`,
+    ...points.map(p => `L${p.x},${p.y}`),
+    `L${points[points.length - 1].x},${PAD.top + innerH}`,
+    'Z',
+  ].join(' ')
+
+  // Etiquetas del eje X: máximo ~6 etiquetas distribuidas
+  const step = Math.ceil(pts.length / 6)
+  const xLabels = pts
+    .map((p, i) => ({ i, date: p.date, x: cx(i) }))
+    .filter((_, i) => i % step === 0 || i === pts.length - 1)
+
+  // Líneas de guía horizontales (4 niveles)
+  const yGuides = [0, 0.25, 0.5, 0.75, 1].map(t => ({
+    y: PAD.top + innerH - t * innerH,
+    label: Math.round(minVal + t * (maxVal - minVal)),
+  }))
+
+  return { points, polyline, area, xLabels, yGuides, maxVal }
+})
+
+function onLineMouseMove(e) {
+  if (!lineChart.value) return
+  const svg = e.currentTarget
+  const rect = svg.getBoundingClientRect()
+  const scaleX = W / rect.width
+  const mouseX = (e.clientX - rect.left) * scaleX
+
+  const pts = lineChart.value.points
+  let closest = pts[0]
+  let minDist = Infinity
+  for (const p of pts) {
+    const d = Math.abs(p.x - mouseX)
+    if (d < minDist) { minDist = d; closest = p }
+  }
+  lineTooltip.value = { x: closest.x, y: closest.y, date: closest.date, visits: closest.visits }
+}
+
+function onLineMouseLeave() {
+  lineTooltip.value = null
+}
 </script>
 
 <template>
@@ -88,23 +161,92 @@ const totalVisits = computed(() => {
         </div>
       </div>
 
-      <!-- Gráfico de visitas diarias -->
+      <!-- Gráfico de línea: visitas diarias -->
       <div v-if="data.daily_visits?.length" class="an__card">
         <h2 class="an__card-title">Visitas por día</h2>
-        <div class="an__bar-chart">
-          <div
-            v-for="d in data.daily_visits"
-            :key="d.date"
-            class="an__bar-wrap"
-            :title="`${d.date}: ${d.visits} visitas`"
+
+        <div v-if="!lineChart" class="an__empty" style="padding: 20px 0">
+          Se necesitan al menos 2 días de datos para mostrar el gráfico.
+        </div>
+
+        <div v-else class="an__line-wrap">
+          <svg
+            :viewBox="`0 0 ${700} ${160}`"
+            class="an__line-svg"
+            @mousemove="onLineMouseMove"
+            @mouseleave="onLineMouseLeave"
           >
-            <div
-              class="an__bar"
-              :style="{
-                height: `${Math.round((d.visits / Math.max(...data.daily_visits.map(x => x.visits))) * 100)}%`
-              }"
-            ></div>
-            <span class="an__bar-label">{{ d.date.slice(5) }}</span>
+            <!-- Guías horizontales -->
+            <g class="an__guides">
+              <line
+                v-for="g in lineChart.yGuides"
+                :key="g.y"
+                :x1="PAD.left" :y1="g.y"
+                :x2="700 - PAD.right" :y2="g.y"
+                stroke="#ede6df" stroke-width="1"
+              />
+              <text
+                v-for="g in lineChart.yGuides"
+                :key="`l${g.y}`"
+                :x="PAD.left - 6" :y="g.y + 4"
+                text-anchor="end"
+                class="an__axis-label"
+              >{{ g.label }}</text>
+            </g>
+
+            <!-- Área rellena -->
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#c4614a" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#c4614a" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path :d="lineChart.area" fill="url(#lineGrad)" />
+
+            <!-- Línea principal -->
+            <polyline
+              :points="lineChart.polyline"
+              fill="none"
+              stroke="#c4614a"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+
+            <!-- Etiquetas eje X -->
+            <text
+              v-for="lbl in lineChart.xLabels"
+              :key="lbl.date"
+              :x="lbl.x" :y="160 - PAD.bottom + 14"
+              text-anchor="middle"
+              class="an__axis-label"
+            >{{ lbl.date.slice(5) }}</text>
+
+            <!-- Punto hover + línea vertical -->
+            <template v-if="lineTooltip">
+              <line
+                :x1="lineTooltip.x" y1="16"
+                :x2="lineTooltip.x" :y2="160 - 32"
+                stroke="#c4614a" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"
+              />
+              <circle
+                :cx="lineTooltip.x" :cy="lineTooltip.y"
+                r="4" fill="#c4614a" stroke="#fff" stroke-width="2"
+              />
+            </template>
+          </svg>
+
+          <!-- Tooltip flotante -->
+          <div
+            v-if="lineTooltip"
+            class="an__line-tooltip"
+            :style="{
+              left: `${(lineTooltip.x / 700) * 100}%`,
+              top: `${(lineTooltip.y / 160) * 100}%`,
+            }"
+          >
+            <span class="an__tooltip-date">{{ lineTooltip.date }}</span>
+            <span class="an__tooltip-val">{{ lineTooltip.visits }} visitas</span>
           </div>
         </div>
       </div>
@@ -179,16 +321,23 @@ const totalVisits = computed(() => {
           <h2 class="an__card-title">Elementos más clickeados</h2>
           <table class="an__table">
             <thead>
-              <tr><th>Elemento</th><th>Página</th><th>Clics</th></tr>
+              <tr><th>Tipo</th><th>Etiqueta</th><th>Sección</th><th>Clics</th></tr>
             </thead>
             <tbody>
               <tr v-for="(row, i) in data.top_clicks" :key="i">
-                <td class="an__td-label">{{ row.label || row.tag || '—' }}</td>
-                <td>{{ formatPage(row.page) }}</td>
+                <td>
+                  <span class="an__tag-badge" :class="`an__tag--${row.tag || 'other'}`">
+                    {{ row.tag || '?' }}
+                  </span>
+                </td>
+                <td class="an__td-label" :title="row.label || ''">
+                  {{ row.label || '—' }}
+                </td>
+                <td class="an__td-section">{{ row.section || '—' }}</td>
                 <td class="an__td-num">{{ row.count }}</td>
               </tr>
               <tr v-if="!data.top_clicks.length">
-                <td colspan="3" class="an__empty">Sin datos aún</td>
+                <td colspan="4" class="an__empty">Sin datos aún</td>
               </tr>
             </tbody>
           </table>
@@ -322,39 +471,49 @@ const totalVisits = computed(() => {
   margin: 0 0 16px;
 }
 
-/* Gráfico de barras */
-.an__bar-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 100px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+/* Gráfico de línea */
+.an__line-wrap {
+  position: relative;
 }
 
-.an__bar-wrap {
+.an__line-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: crosshair;
+}
+
+.an__axis-label {
+  font-size: 9px;
+  fill: #b0a096;
+  font-family: var(--font-sans, sans-serif);
+}
+
+.an__line-tooltip {
+  position: absolute;
+  transform: translate(-50%, -120%);
+  background: var(--color-bg-dark, #2a1a10);
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-width: 28px;
-  flex: 1;
-  height: 100%;
-  justify-content: flex-end;
-}
-
-.an__bar {
-  width: 100%;
-  background: var(--color-rose-mid, #c4614a);
-  border-radius: 3px 3px 0 0;
-  min-height: 2px;
-  transition: height 0.3s;
-}
-
-.an__bar-label {
-  font-size: 0.55rem;
-  color: #8c7b6e;
+  gap: 1px;
   white-space: nowrap;
+  font-size: 0.75rem;
+  box-shadow: 0 4px 12px rgba(28,16,8,0.2);
+}
+
+.an__tooltip-date {
+  font-size: 0.65rem;
+  opacity: 0.65;
+}
+
+.an__tooltip-val {
+  font-family: var(--font-serif, serif);
+  font-size: 0.9rem;
 }
 
 /* Tablas */
@@ -394,10 +553,50 @@ const totalVisits = computed(() => {
 }
 
 .an__td-label {
-  max-width: 200px;
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: default;
+}
+
+.an__td-section {
+  font-size: 0.75rem;
+  color: #8c7b6e;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.an__tag-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: lowercase;
+  background: #f0e9e3;
+  color: #7a5c4a;
+}
+
+.an__tag--button,
+.an__tag--a {
+  background: #fde8e0;
+  color: #c4614a;
+}
+
+.an__tag--input,
+.an__tag--select,
+.an__tag--textarea {
+  background: #e8f0e0;
+  color: #5a7a40;
+}
+
+.an__tag--img {
+  background: #e8eaf0;
+  color: #4a5a7a;
 }
 
 .an__empty {

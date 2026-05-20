@@ -218,6 +218,7 @@ onBeforeUnmount(() => {
           role="button"
           tabindex="0"
           :aria-label="'Ver detalles de ' + product.name"
+          :data-track="'Galería: ' + product.name"
           @click="openDetail(product)"
           @keydown.enter.prevent="openDetail(product)"
           @keydown.space.prevent="openDetail(product)"
@@ -309,7 +310,7 @@ onBeforeUnmount(() => {
           <div class="featured__card-body">
             <h3 class="featured__card-name">{{ product.name }}</h3>
             <p class="featured__card-desc">{{ product.description }}</p>
-            <button type="button" class="featured__card-more" @click.stop="openDetail(product)">
+            <button type="button" class="featured__card-more" @click.stop="openDetail(product)" :data-track="'Ver detalles: ' + product.name">
               Ver detalles
             </button>
             <div class="featured__card-footer">
@@ -329,6 +330,7 @@ onBeforeUnmount(() => {
                 type="button"
                 class="featured__card-btn"
                 @click="openWhatsApp(product.name)"
+                :data-track="'Pedir: ' + product.name"
               >
                 Pedir
               </button>
@@ -372,7 +374,7 @@ onBeforeUnmount(() => {
       @click.self="closeDetail"
     >
       <div class="featured-detail__panel">
-        <button type="button" class="featured-detail__close" aria-label="Cerrar" @click="closeDetail">×</button>
+        <button type="button" class="featured-detail__close" aria-label="Cerrar" @click="closeDetail" data-track="Modal: Cerrar (X)">×</button>
         <div class="featured-detail__img">
           <video
             v-if="isVideo(selectedProduct.image_url)"
@@ -416,7 +418,7 @@ onBeforeUnmount(() => {
             </dl>
           </div>
           <div class="featured-detail__actions">
-            <button type="button" class="featured-detail__btn featured-detail__btn--ghost" @click="closeDetail">
+            <button type="button" class="featured-detail__btn featured-detail__btn--ghost" @click="closeDetail" data-track="Modal: Cerrar">
               Cerrar
             </button>
             <button
@@ -424,6 +426,7 @@ onBeforeUnmount(() => {
               type="button"
               class="featured-detail__btn featured-detail__btn--primary"
               @click="openWhatsApp(selectedProduct.name)"
+              :data-track="'Pedir WhatsApp: ' + selectedProduct.name"
             >
               Pedir por WhatsApp
             </button>
