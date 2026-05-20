@@ -9,7 +9,7 @@ const DEFAULTS = {
     'En todo este tiempo conocí gente hermosa, profesores que admiro muchísimo y colegas que son talentosísimas.',
     'Ahora que decidí emprender, estoy feliz de hacer lo que amo y que se vea reflejado en cada detalle que hago para ustedes.',
   ],
-  signature: 'Pía',
+  signature: 'Pía Cordero',
   since_year: '2015',
   image_main: '/images/naked-cake-naranja.jpg',
   image_2: '/images/torta-espiral-top.jpg',
@@ -62,20 +62,6 @@ function onAboutImgError(e) {
             data-fallback-key="image_main"
             @error="onAboutImgError"
           />
-        </div>
-        <div class="about__img-secondary-wrap">
-          <img
-            :src="display.image_2"
-            alt="En la cocina"
-            class="about__img-secondary"
-            loading="lazy"
-            data-fallback-key="image_2"
-            @error="onAboutImgError"
-          />
-          <div class="about__since-badge">
-            <span class="about__since-text">En cocina desde</span>
-            <span class="about__since-year">{{ display.since_year }}</span>
-          </div>
         </div>
       </div>
 
@@ -134,50 +120,6 @@ function onAboutImgError(e) {
   object-fit: cover;
 }
 
-.about__img-secondary-wrap {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 55%;
-  height: 52%;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(28,16,8,0.15);
-}
-
-.about__img-secondary {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.about__since-badge {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  background: var(--color-rose-mid);
-  color: var(--color-white);
-  border-radius: 10px;
-  padding: 10px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.about__since-text {
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  font-weight: 300;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
-}
-
-.about__since-year {
-  font-family: var(--font-serif);
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1;
-}
 
 /* Contenido de texto */
 .about__content {
